@@ -1,0 +1,27 @@
+# Node.js
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env*.local
+
+# Python virtual environment
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Databases
+*.db
+*.sqlite
+
+# IDEs & System files
+.vscode/
+.idea/
+.gemini/
+.DS_Store
+Thumbs.db
