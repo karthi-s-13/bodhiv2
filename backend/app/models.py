@@ -62,3 +62,19 @@ class Assessment(Base):
 
     owner = relationship("User")
     document = relationship("PDFDocument")
+
+
+class LessonPresentation(Base):
+    __tablename__ = "lesson_presentations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    document_id = Column(Integer, ForeignKey("pdf_documents.id", ondelete="CASCADE"), nullable=True)
+    title = Column(String, nullable=False)
+    topic_name = Column(String, nullable=True)
+    chapter_name = Column(String, nullable=True)
+    slides_data = Column(JSON, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    owner = relationship("User")
+    document = relationship("PDFDocument")

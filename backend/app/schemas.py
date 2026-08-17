@@ -93,3 +93,22 @@ class AssessmentResponse(AssessmentBase):
 
     class Config:
         from_attributes = True
+
+# Presentation Schemas
+class PresentationBase(BaseModel):
+    title: str
+    topic_name: Optional[str] = None
+    chapter_name: Optional[str] = None
+    slides_data: dict
+
+class PresentationCreate(PresentationBase):
+    pass
+
+class PresentationResponse(PresentationBase):
+    id: int
+    user_id: int
+    document_id: Optional[int] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

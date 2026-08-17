@@ -36,7 +36,7 @@ export const Dashboard: React.FC = () => {
   const [docsError, setDocsError] = useState<string | null>(null);
 
   // Tab Selection inside Textbook Details
-  const [viewerTab, setViewerTab] = useState<'curriculum' | 'textbook' | 'text' | 'search'>('curriculum');
+  const [viewerTab, setViewerTab] = useState<'curriculum' | 'textbook' | 'text' | 'search' | 'presentations'>('curriculum');
 
   // Fetch documents list
   const fetchDocuments = async (autoSelectId?: number) => {

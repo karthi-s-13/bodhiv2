@@ -21,6 +21,7 @@ import {
 import { SEEDED_CURRICULUM_DATA, generateFallbackCurriculum } from '../../data/curriculumData';
 import type { CurriculumTopicDetails } from '../../data/curriculumData';
 import { MCQAssessmentModal } from './MCQAssessmentModal';
+import { PPTModal } from './PPTModal';
 
 interface CurriculumMapProps {
   topicName: string;
@@ -43,6 +44,7 @@ const splitLeadingNumber = (text: string): { number: string | null; rest: string
 
 export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNumber, chapterLabel, chapterData, docId, token, isEmbedded }) => {
   const [showMCQ, setShowMCQ] = useState(false);
+  const [showPPT, setShowPPT] = useState(false);
   // Try to find seeded curriculum details by topic name match (case-insensitive)
   const normalizedQuery = topicName.toLowerCase().trim();
   let details: CurriculumTopicDetails | null = null;
@@ -183,12 +185,40 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
             Teaching Resources
           </span>
           
-          <div className="resource-link-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', border: '1px solid transparent', transition: 'var(--transition-smooth)' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-glass-active)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
-            <span>PPT Presentation</span>
-            <span className="resource-preview-btn" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-primary)', fontSize: '0.75rem' }}>
-              Preview <ExternalLink size={12} />
-            </span>
-          </div>
+          {/* PPT Presentation Button */}
+          {docId && token && (
+            <button
+              onClick={() => setShowPPT(true)}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '10px 12px',
+                background: 'linear-gradient(135deg, rgba(79,70,229,0.06), rgba(124,58,237,0.06))',
+                borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700,
+                cursor: 'pointer',
+                border: '1px solid rgba(79,70,229,0.18)',
+                color: 'var(--color-primary)',
+                width: '100%',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(79,70,229,0.12),rgba(124,58,237,0.12))'; e.currentTarget.style.borderColor = 'rgba(79,70,229,0.35)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(79,70,229,0.06),rgba(124,58,237,0.06))'; e.currentTarget.style.borderColor = 'rgba(79,70,229,0.18)'; }}
+            >
+              <span>🎯 PPT Presentation</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', opacity: 0.8 }}>
+                Generate <ExternalLink size={12} />
+              </span>
+            </button>
+          )}
+
+          {/* Static PPT link when no docId */}
+          {(!docId || !token) && (
+            <div className="resource-link-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', border: '1px solid transparent', transition: 'var(--transition-smooth)' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-glass-active)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
+              <span>PPT Presentation</span>
+              <span className="resource-preview-btn" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-primary)', fontSize: '0.75rem' }}>
+                Preview <ExternalLink size={12} />
+              </span>
+            </div>
+          )}
 
           <div className="resource-link-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', border: '1px solid transparent', transition: 'var(--transition-smooth)' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-glass-active)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
             <span>Teacher Notes</span>
@@ -382,6 +412,19 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
           chapterName={chapterLabel || details.tree.rootTitle}
           subtopics={chapterData?.children?.map((c: any) => c.name) || details.tree.children.map((c: any) => c.title)}
           onClose={() => setShowMCQ(false)}
+        />
+      )}
+
+      {/* PPT Presentation Modal */}
+      {showPPT && docId && token && (
+        <PPTModal
+          docId={docId}
+          token={token}
+          isEmbedded={!!isEmbedded}
+          topicName={topicName}
+          chapterName={chapterLabel || details.tree.rootTitle}
+          subtopics={chapterData?.children?.map((c: any) => c.name) || details.tree.children.map((c: any) => c.title)}
+          onClose={() => setShowPPT(false)}
         />
       )}
     </div>

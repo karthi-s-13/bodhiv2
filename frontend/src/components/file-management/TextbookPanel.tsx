@@ -26,8 +26,8 @@ interface TextbookPanelProps {
   onDeleteDoc: (id: number) => void;
   onDocumentUpdate: (doc: PDFDocument) => void;
   token: string;
-  viewerTab: 'curriculum' | 'textbook' | 'text' | 'search';
-  setViewerTab: (tab: 'curriculum' | 'textbook' | 'text' | 'search') => void;
+  viewerTab: 'curriculum' | 'textbook' | 'text' | 'search' | 'presentations';
+  setViewerTab: (tab: 'curriculum' | 'textbook' | 'text' | 'search' | 'presentations') => void;
 }
 
 export const TextbookPanel: React.FC<TextbookPanelProps> = ({
@@ -62,7 +62,8 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
     curriculum: 'Curriculum Map',
     textbook: 'Folder Explorer',
     text: 'Text Reader',
-    search: 'Semantic Search'
+    search: 'Semantic Search',
+    presentations: 'Saved PPTs'
   };
 
   // Toggle chapter accordion

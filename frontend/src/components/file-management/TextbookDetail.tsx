@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { FileText, Folder, Brain, RefreshCw, AlertTriangle, Map } from 'lucide-react';
+import { FileText, Folder, Brain, RefreshCw, AlertTriangle, Map, Presentation } from 'lucide-react';
 import { FileExplorer } from './FileExplorer';
 import { TextReader } from './TextReader';
 import { SemanticSearch } from './SemanticSearch';
 import { CurriculumMap } from './CurriculumMap';
+import { SavedPresentations } from './SavedPresentations';
 import type { PDFDocument } from '../../types';
 
 interface TextbookDetailProps {
@@ -11,8 +12,8 @@ interface TextbookDetailProps {
   token: string;
   onDocumentUpdate: (doc: PDFDocument) => void;
   onDeleteTextbook: (id: number) => void;
-  activeTab: 'curriculum' | 'textbook' | 'text' | 'search';
-  setActiveTab: (tab: 'curriculum' | 'textbook' | 'text' | 'search') => void;
+  activeTab: 'curriculum' | 'textbook' | 'text' | 'search' | 'presentations';
+  setActiveTab: (tab: 'curriculum' | 'textbook' | 'text' | 'search' | 'presentations') => void;
   selectedTopicName: string;
   selectedTopicNumber?: string;
   selectedChapterLabel?: string;
@@ -192,6 +193,26 @@ export const TextbookDetail: React.FC<TextbookDetailProps> = ({
               Semantic Search
             </span>
           </button>
+          <button
+            onClick={() => setActiveTab('presentations')}
+            className={`viewer-tab-btn ${activeTab === 'presentations' ? 'active' : ''}`}
+            style={{
+              padding: '10px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'presentations' ? '2px solid var(--color-primary)' : '2px solid transparent',
+              color: activeTab === 'presentations' ? 'var(--text-primary)' : 'var(--text-muted)',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              transition: 'var(--transition-smooth)'
+            }}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Presentation size={16} style={{ color: activeTab === 'presentations' ? 'var(--color-primary)' : 'inherit' }} />
+              Saved PPTs
+            </span>
+          </button>
         </div>
       )}
 
@@ -235,6 +256,12 @@ export const TextbookDetail: React.FC<TextbookDetailProps> = ({
             docId={doc.id}
             token={token}
             extractedText={doc.extracted_text}
+          />
+        )}
+        {activeTab === 'presentations' && (
+          <SavedPresentations
+            docId={doc.id}
+            token={token}
           />
         )}
       </div>

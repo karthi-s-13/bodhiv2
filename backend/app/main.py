@@ -8,8 +8,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from .database import engine, Base, get_db, apply_schema_updates
-from .models import User, PDFDocument, Assessment
-from .schemas import UserCreate, UserResponse, Token, PDFDocumentResponse, PDFDocumentSummary, SemanticSearchQuery, SemanticSearchResult, AssessmentCreate, AssessmentResponse
+from .models import User, PDFDocument, Assessment, LessonPresentation
+from .schemas import UserCreate, UserResponse, Token, PDFDocumentResponse, PDFDocumentSummary, SemanticSearchQuery, SemanticSearchResult, AssessmentCreate, AssessmentResponse, PresentationCreate, PresentationResponse
 from .auth import hash_password, verify_password, create_access_token, get_current_user
 from .pdf_parser import extract_text_from_pdf
 
@@ -821,3 +821,396 @@ async def generate_mcq_assessment(
         raise
     except httpx.RequestError as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"OpenRouter connection failed: {str(e)}")
+
+
+# --- PPT Lesson Presentation Generator Endpoint ---
+
+class PPTGenerateRequest(_PydanticBase):
+    topic_name: str
+    chapter_name: str
+    subject: str = "General"
+    board: str = "Tamil Nadu State Board"
+    duration_minutes: int = 45
+    language: str = "English"
+    subtopics: list[str] = []
+
+
+BODHI_PPT_SYSTEM_PROMPT = """You are BODHI Teacher Copilot, an AI teaching assistant for school teachers.
+
+Your task is to create a classroom-ready lesson presentation for a teacher to explain ONE selected textbook topic to school students.
+
+IMPORTANT:
+- The uploaded textbook is the primary source of truth.
+- Use only the provided textbook evidence and approved curriculum context for factual claims.
+- Do NOT invent facts.
+- Do NOT introduce advanced concepts unnecessarily.
+- Do NOT generate MCQs, quizzes, marks, homework, or assessment questions.
+- This presentation is ONLY for teaching and explaining the concept.
+- The teacher will review and approve the presentation before classroom use.
+
+TEACHING PRINCIPLES:
+1. AGE APPROPRIATE - Content must match the student's grade. Avoid university-level terminology.
+2. SIMPLE FIRST - Introduce the idea before giving technical details. Move from familiar to unfamiliar.
+3. 4-QUADRANT STRUCTURE - EVERY slide must strictly follow the 4-quadrant layout: Concept, How it works, Example, AI Co-teacher.
+4. COGNITIVE LOAD - Keep text minimal. Use short bullet points.
+
+SLIDE FLOW (8-12 slides):
+Slide 1: HOOK / TOPIC INTRODUCTION - Create curiosity with a question, situation or observation.
+Slide 2: PRIOR KNOWLEDGE - Connect to what students already know.
+Slide 3: LEARNING OBJECTIVES - What students will understand by the end.
+Slide 4: CORE CONCEPT - Simplest accurate explanation. Introduce important terminology.
+Slide 5: PROCESS EXPLANATION - Step-by-step breakdown.
+Slide 6: DEEP DIVE - Explore the core mechanism in more detail.
+Slide 7: RELATED CONCEPT - ONE highly relevant related concept.
+Slide 8: EXAMPLE / REAL-WORLD CONNECTION - Concrete example students can understand.
+Slide 9: ANALOGY / COMPARISON - Analogy, comparison table, or familiar system.
+Slide 10: MISCONCEPTION - Address most important likely misconception. Explain correct mental model.
+Slide 11: SUMMARY - Summarize key concept. Show relationships. End with memorable takeaway.
+
+OUTPUT FORMAT - Return ONLY valid JSON:
+{
+  "presentation": {
+    "title": "",
+    "grade": "",
+    "subject": "",
+    "topic": "",
+    "language": "",
+    "duration_minutes": 0,
+    "learning_objectives": [],
+    "slides": [
+      {
+        "slide_number": 1,
+        "title": "Slide Heading",
+        "concept": ["Definition", "Key idea"],
+        "how_it_works": ["Step 1", "Step 2"],
+        "example": ["Real world application"],
+        "ai_co_teacher": ["BODHI's advice or misconception warning"],
+        "evidence_ids": []
+      }
+    ]
+  }
+}
+
+QUALITY CHECK before returning JSON:
+- Topic is grounded in the selected textbook
+- Every slide strictly contains the 4 arrays: concept, how_it_works, example, ai_co_teacher
+- No unsupported factual claims
+- Content matches student grade
+- No MCQs, no homework, no scoring, no assessment questions
+- Output is valid JSON"""
+
+
+def build_bodhi_ppt_prompt(
+    topic_name: str,
+    chapter_name: str,
+    subject: str,
+    board: str,
+    duration_minutes: int,
+    language: str,
+    subtopics: list,
+    textbook_evidence: str,
+) -> str:
+    """
+    Builds the user-side BODHI Teacher Copilot prompt with all placeholders filled.
+    """
+    # Derive plausible grade from board string
+    grade = "Class 8"
+
+    # Build structured prerequisite / related concepts from subtopics
+    prerequisite_concepts = "Basic understanding of cells and plant biology"
+    related_concepts = "; ".join(subtopics[:3]) if subtopics else f"Related topics in {chapter_name}"
+    learning_objectives = (
+        f"1. Understand what {topic_name} means and why it is important.\n"
+        f"2. Identify the key components involved in {topic_name}.\n"
+        f"3. Describe the process of {topic_name} step by step.\n"
+        f"4. Connect {topic_name} to real-world examples."
+    )
+    misconceptions = (
+        f"Students may confuse {topic_name} with related but different processes. "
+        f"They may think the process only happens under certain conditions when it actually happens in other situations too."
+    )
+    knowledge_graph = (
+        f"Chapter: {chapter_name}\n"
+        f"Topic: {topic_name}\n"
+        f"Subtopics: {', '.join(subtopics) if subtopics else 'See textbook evidence'}"
+    )
+
+    prompt = f"""==================================================
+INPUT
+==================================================
+
+Subject: {subject}
+Board/Curriculum: {board}
+Grade: {grade}
+Lesson Duration: {duration_minutes} minutes
+Chapter: {chapter_name}
+Selected Topic: {topic_name}
+
+Learning Objectives:
+{learning_objectives}
+
+Prerequisite Concepts:
+{prerequisite_concepts}
+
+Related Concepts:
+{related_concepts}
+
+Known Misconceptions:
+{misconceptions}
+
+TEXTBOOK EVIDENCE:
+{textbook_evidence}
+
+CURRICULUM KNOWLEDGE GRAPH:
+{knowledge_graph}
+
+==================================================
+YOUR OBJECTIVE
+==================================================
+
+Transform the selected textbook topic into a pedagogically structured classroom presentation.
+
+The presentation should help a teacher answer:
+1. What should I teach first?
+2. How can I introduce the concept?
+3. What previous knowledge should I connect?
+4. How can I explain the difficult part simply?
+5. What example can I give?
+6. What visual/diagram would make the concept easier?
+7. Which related concept should I introduce?
+8. What misconception should I watch for?
+9. How can I connect the concept to students' real life?
+10. How should I summarize the lesson?
+
+==================================================
+LANGUAGE REQUIREMENTS
+==================================================
+
+Generate the teaching explanation naturally in: {language}
+
+Do NOT perform literal word-for-word translation.
+Instead:
+- Understand the textbook concept first.
+- Generate a natural explanation appropriate for students.
+- Use simple vocabulary appropriate for {grade}.
+- Keep important scientific/technical terms where necessary.
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Return ONLY valid JSON matching the exact output format described in your system prompt.
+Do not include any text, explanation, or markdown outside the JSON object.
+"""
+    return prompt
+
+
+@app.post("/api/documents/{doc_id}/generate-ppt")
+async def generate_ppt_presentation(
+    doc_id: int,
+    payload: PPTGenerateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    BODHI Teacher Copilot – Generate a structured classroom PPT presentation
+    for the selected topic using the uploaded textbook as the primary source.
+    """
+    import json as _json
+    import re as _re
+
+    doc = db.query(PDFDocument).filter(
+        PDFDocument.id == doc_id, PDFDocument.user_id == current_user.id
+    ).first()
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found or you do not have permission.",
+        )
+
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    model = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="OpenRouter API Key is not configured. Please add OPENROUTER_API_KEY to your backend/.env file.",
+        )
+
+    # --- Retrieve textbook evidence ---
+    textbook_evidence = ""
+
+    if doc.is_embedded:
+        try:
+            from .models import PDFChunk
+
+            query_text = " ".join(
+                [payload.chapter_name, payload.topic_name] + payload.subtopics[:5]
+            )
+            query_embeddings = await embed_text_chunks([query_text])
+            if query_embeddings:
+                qv = query_embeddings[0]
+                results = db.query(
+                    PDFChunk,
+                    (1.0 - PDFChunk.embedding.cosine_distance(qv)).label("similarity"),
+                ).filter(PDFChunk.document_id == doc_id).order_by(
+                    PDFChunk.embedding.cosine_distance(qv)
+                ).limit(8).all()
+
+                chunks_text = [
+                    f"[Evidence {i+1}] {chunk.text_content}"
+                    for i, (chunk, sim) in enumerate(results)
+                    if float(sim) > 0.2
+                ]
+                if chunks_text:
+                    textbook_evidence = "\n\n---\n\n".join(chunks_text)
+        except Exception as e:
+            print(f"PPT pgvector search failed: {e}")
+
+    # Fallback: raw extracted text
+    if not textbook_evidence and doc.extracted_text:
+        raw = doc.extracted_text[:8000]
+        textbook_evidence = f"[Extracted textbook text (first 8000 chars)]\n\n{raw}"
+
+    if not textbook_evidence:
+        textbook_evidence = "No textbook evidence available. Generate from general curriculum knowledge."
+
+    # --- Build prompt ---
+    user_prompt = build_bodhi_ppt_prompt(
+        topic_name=payload.topic_name,
+        chapter_name=payload.chapter_name,
+        subject=payload.subject,
+        board=payload.board,
+        duration_minutes=payload.duration_minutes,
+        language=payload.language,
+        subtopics=payload.subtopics,
+        textbook_evidence=textbook_evidence,
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            req_headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://localhost:8000",
+                "X-Title": "BODHI Teacher Copilot (Bodhi v2)",
+            }
+            response = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers=req_headers,
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": BODHI_PPT_SYSTEM_PROMPT},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "temperature": 0.4,
+                },
+            )
+
+            if response.status_code != 200:
+                error_msg = response.text
+                try:
+                    err_json = response.json()
+                    if "error" in err_json:
+                        error_msg = err_json["error"].get("message", error_msg)
+                except Exception:
+                    pass
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"OpenRouter error ({response.status_code}): {error_msg}",
+                )
+
+            result = response.json()
+            choices = result.get("choices", [])
+            if not choices:
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail="Empty response from AI model.",
+                )
+
+            raw_content = choices[0].get("message", {}).get("content", "").strip()
+
+            # Strip markdown code fences if model wrapped the JSON
+            if raw_content.startswith("```"):
+                lines = [
+                    ln for ln in raw_content.splitlines()
+                    if not ln.strip().startswith("```")
+                ]
+                raw_content = "\n".join(lines).strip()
+
+            # Parse JSON
+            try:
+                parsed = _json.loads(raw_content)
+                if "presentation" not in parsed:
+                    raise ValueError("Missing 'presentation' key")
+            except Exception:
+                # Try to extract JSON object from surrounding text
+                match = _re.search(r"\{.*\}", raw_content, _re.DOTALL)
+                if match:
+                    parsed = _json.loads(match.group())
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_502_BAD_GATEWAY,
+                        detail="Could not parse presentation JSON from AI response.",
+                    )
+
+            return {
+                "presentation": parsed.get("presentation", parsed),
+                "topic_name": payload.topic_name,
+                "chapter_name": payload.chapter_name,
+                "used_textbook_context": bool(doc.is_embedded),
+            }
+
+    except HTTPException:
+        raise
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"OpenRouter connection failed: {str(e)}",
+        )
+
+# --- Presentation Endpoints ---
+
+@app.post("/api/documents/{doc_id}/presentations", response_model=PresentationResponse, status_code=status.HTTP_201_CREATED)
+def create_presentation(
+    doc_id: int,
+    payload: PresentationCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    doc = db.query(PDFDocument).filter(
+        PDFDocument.id == doc_id, PDFDocument.user_id == current_user.id
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found.")
+
+    new_presentation = LessonPresentation(
+        user_id=current_user.id,
+        document_id=doc_id,
+        title=payload.title,
+        topic_name=payload.topic_name,
+        chapter_name=payload.chapter_name,
+        slides_data=payload.slides_data
+    )
+    db.add(new_presentation)
+    db.commit()
+    db.refresh(new_presentation)
+    return new_presentation
+
+@app.get("/api/documents/{doc_id}/presentations", response_model=List[PresentationResponse])
+def get_presentations(
+    doc_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    doc = db.query(PDFDocument).filter(
+        PDFDocument.id == doc_id, PDFDocument.user_id == current_user.id
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found.")
+
+    presentations = db.query(LessonPresentation).filter(
+        LessonPresentation.document_id == doc_id,
+        LessonPresentation.user_id == current_user.id
+    ).order_by(LessonPresentation.created_at.desc()).all()
+    return presentations
