@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  BookOpen, 
-  UploadCloud, 
-  Folder, 
-  FileText, 
-  Brain, 
-  Search, 
-  Grid, 
-  List, 
-  ArrowRight, 
-  Trash, 
-  Plus, 
+import {
+  BookOpen,
+  UploadCloud,
+  Folder,
+  FileText,
+  Brain,
+  Search,
+  Grid,
+  List,
+  ArrowRight,
+  Trash,
+  Plus,
   ChevronRight,
-  Sparkles
+  ChevronDown,
+  Bell,
+  Download
 } from 'lucide-react';
-import { TextbookList } from './TextbookList';
 import { TextbookDetail } from './TextbookDetail';
 import type { PDFDocument, PDFDocumentSummary } from '../../types';
-import { DEMO_TEXTBOOKS } from '../../data/demoTextbooks';
 
 interface TextbookPanelProps {
   documents: PDFDocumentSummary[];
@@ -52,8 +52,18 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
 
   // Table of Contents Accordion States
   const [selectedTopicName, setSelectedTopicName] = useState<string>('Photosynthesis');
+  const [selectedTopicNumber, setSelectedTopicNumber] = useState<string | undefined>(undefined);
+  const [selectedChapterLabel, setSelectedChapterLabel] = useState<string | undefined>(undefined);
+  const [selectedChapter, setSelectedChapter] = useState<any>(undefined);
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
   const [tocSearchTerm, setTocSearchTerm] = useState<string>('');
+
+  const tabLabels: Record<string, string> = {
+    curriculum: 'Curriculum Map',
+    textbook: 'Folder Explorer',
+    text: 'Text Reader',
+    search: 'Semantic Search'
+  };
 
   // Toggle chapter accordion
   const toggleChapter = (chapId: string) => {
@@ -71,10 +81,16 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
         const firstChap = viewerDoc.textbook_data.items[0];
         if (firstChap.children && firstChap.children.length > 0) {
           setSelectedTopicName(firstChap.children[0].name);
+          setSelectedTopicNumber('1.1');
+          setSelectedChapterLabel(`Chapter 1: ${firstChap.name}`);
+          setSelectedChapter(firstChap);
           setExpandedChapters({ [firstChap.id]: true });
         }
       } else {
         setSelectedTopicName('General Overview');
+        setSelectedTopicNumber(undefined);
+        setSelectedChapterLabel(undefined);
+        setSelectedChapter(undefined);
       }
     } else {
       setMode('library');
@@ -95,17 +111,10 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
     }
   };
 
-  // Select a document (either demo or db uploaded)
+  // Select a document to view
   const handleViewCurriculum = (doc: any) => {
-    if (doc.id < 0) {
-      // Load demo textbook mock object into viewer doc
-      onDocumentUpdate(doc as PDFDocument);
-      setViewerTab('textbook');
-      setMode('detail');
-    } else {
-      loadViewerDoc(doc.id);
-      setMode('detail');
-    }
+    loadViewerDoc(doc.id);
+    setMode('detail');
   };
 
   // Render high-fidelity SVG cover vector
@@ -307,12 +316,12 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
       topics_count: topics,
       concepts_count: topics * 5, // Mock estimate
       textbook_data: doc.textbook_data,
-      extracted_text: doc.extracted_text || ""
+      extracted_text: (doc as any).extracted_text || ""
     };
   });
 
-  // Combine database files with mock demo books
-  const allTextbooks = [...dbTextbooksMapped, ...DEMO_TEXTBOOKS];
+  // Only real uploaded textbooks
+  const allTextbooks = dbTextbooksMapped;
 
   // Filtering Logic
   const filteredTextbooks = allTextbooks.filter(doc => {
@@ -441,12 +450,6 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                 }}
               >
                 <option value="All Subjects">All Subjects</option>
-                <option value="Science">Science</option>
-                <option value="Mathematics">Mathematics</option>
-                <option value="English">English</option>
-                <option value="Tamil">Tamil</option>
-                <option value="Social Science">Social Science</option>
-                <option value="Hindi">Hindi</option>
               </select>
 
               <select 
@@ -602,10 +605,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                       View Curriculum Map
                     </button>
                     <button 
-                      onClick={() => {
-                        if (doc.id > 0) onDeleteDoc(doc.id);
-                        else alert("Demo books cannot be deleted.");
-                      }}
+                      onClick={() => onDeleteDoc(doc.id)}
                       className="btn-arrow-action"
                       style={{ width: '36px', height: '36px', borderColor: 'rgba(239,68,68,0.2)', color: '#EF4444' }}
                       title="Delete textbook"
@@ -643,32 +643,41 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
       ) : (
         /* Detailed Split-Pane View Mode */
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }} className="animate-fade-in">
-          <div className="view-header" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>My Textbooks Manager</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
-                Upload, organize chapters, edit topics, and query textbooks semantically with pgvector.
-              </p>
+          <div className="detail-breadcrumb-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+            <div className="breadcrumb-trail" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <span className="breadcrumb-link" onClick={() => setMode('library')} style={{ cursor: 'pointer' }}>My Textbooks</span>
+                {viewerDoc && (
+                  <>
+                    <ChevronRight size={14} style={{ margin: '0 4px' }} />
+                    <span>{(viewerDoc as any).title || viewerDoc.filename.replace(/\.[^/.]+$/, "").replace(/_/g, " ")}</span>
+                    <ChevronRight size={14} style={{ margin: '0 4px' }} />
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{tabLabels[viewerTab]}</span>
+                  </>
+                )}
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>Curriculum Map</h2>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                  Visualize the structure of your textbook. Click on any topic to view its details and teaching resources.
+                </p>
+              </div>
             </div>
-            
-            <button 
-              onClick={() => {
-                setMode('library');
-                // Optional: clear active viewerDoc so user sees list placeholder next time they enter detail mode
-              }}
-              style={{
-                background: 'none',
-                border: '1px solid rgba(79, 70, 229, 0.25)',
-                color: 'var(--color-primary)',
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.85rem'
-              }}
-            >
-              &larr; Back to Library
-            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '16px' }}>
+              <button className="class-pill-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600 }}>
+                <span>Class 8 - A</span>
+                <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
+              </button>
+              <div className="notif-bell-btn" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
+                <Bell size={18} style={{ color: 'var(--text-secondary)' }} />
+                <span className="notif-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: 'var(--color-danger)', color: 'white', fontSize: '0.6rem', fontWeight: 800, padding: '2px 6px', borderRadius: '10px' }}>3</span>
+              </div>
+              <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', boxShadow: 'var(--shadow-glow)' }}>
+                <Plus size={16} />
+                Generate New Lesson
+              </button>
+            </div>
           </div>
 
           <div className="history-layout" style={{ flexGrow: 1, minHeight: 0 }}>
@@ -678,40 +687,44 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                 {/* Mini Book Card */}
                 <div style={{
                   display: 'flex',
+                  flexDirection: 'column',
                   gap: '12px',
-                  alignItems: 'center',
                   paddingBottom: '16px',
                   borderBottom: '1px solid var(--border-glass)',
                   marginBottom: '16px'
                 }}>
-                  <div style={{ width: '48px', height: '64px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-                    {renderBookCoverSvg(viewerDoc.subject || 'Default', viewerDoc.title || viewerDoc.filename)}
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div style={{ width: '52px', height: '70px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+                      {renderBookCoverSvg((viewerDoc as any).subject || 'Default', (viewerDoc as any).title || viewerDoc.filename)}
+                    </div>
+                    <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
+                      <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={(viewerDoc as any).title || viewerDoc.filename}>
+                        {(viewerDoc as any).title || viewerDoc.filename.replace(/\.[^/.]+$/, "").replace(/_/g, " ")}
+                      </h4>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                        {(viewerDoc as any).grade || 'Class 8'}
+                      </span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                        {(viewerDoc as any).board || 'Tamil Nadu State Board'}
+                      </span>
+                    </div>
                   </div>
-                  <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
-                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={viewerDoc.title || viewerDoc.filename}>
-                      {viewerDoc.title || viewerDoc.filename.replace(/\.[^/.]+$/, "").replace(/_/g, " ")}
-                    </h4>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      {viewerDoc.board || 'Tamil Nadu State Board'}
-                    </span>
-                    <button 
-                      onClick={() => setMode('library')}
-                      style={{
-                        marginTop: '4px',
-                        background: 'white',
-                        border: '1px solid var(--border-glass)',
-                        borderRadius: 'var(--radius-sm)',
-                        padding: '3px 8px',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        color: 'var(--text-secondary)',
-                        cursor: 'pointer',
-                        width: 'fit-content'
-                      }}
-                    >
-                      Change Textbook
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setMode('library')}
+                    style={{
+                      width: '100%',
+                      background: 'white',
+                      border: '1px solid var(--border-glass)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '7px 8px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      color: 'var(--text-secondary)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Change Textbook
+                  </button>
                 </div>
 
                 {/* Table of Contents Header */}
@@ -741,9 +754,10 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
 
                 {/* Accordion Tree list */}
                 <div style={{ flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', minHeight: 0 }}>
-                  {viewerDoc.textbook_data?.items?.map((chapter: any) => {
+                  {viewerDoc.textbook_data?.items?.map((chapter: any, chapIdx: number) => {
+                    const chapterNumber = chapIdx + 1;
                     const isExpanded = !!expandedChapters[chapter.id];
-                    const filteredChildren = chapter.children?.filter((topic: any) => 
+                    const filteredChildren = chapter.children?.filter((topic: any) =>
                       topic.name.toLowerCase().includes(tocSearchTerm.toLowerCase())
                     ) || [];
 
@@ -753,7 +767,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
 
                     return (
                       <div key={chapter.id} style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div 
+                        <div
                           onClick={() => toggleChapter(chapter.id)}
                           style={{
                             display: 'flex',
@@ -762,41 +776,44 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                             padding: '8px 6px',
                             cursor: 'pointer',
                             borderRadius: 'var(--radius-sm)',
-                            fontSize: '0.8rem',
-                            fontWeight: 700,
-                            color: 'var(--text-primary)',
                             background: 'rgba(0,0,0,0.005)'
                           }}
                           className="chapter-accordion-header"
                         >
-                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: '6px' }}>
-                            {chapter.name}
+                          <span className="chapter-header-stack">
+                            <span className="chapter-header-label">Chapter {chapterNumber}</span>
+                            <span className="chapter-header-title">{chapter.name}</span>
                           </span>
-                          <ChevronRight 
-                            size={14} 
+                          <ChevronRight
+                            size={14}
                             style={{
                               transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
                               transition: 'transform 0.2s ease',
                               flexShrink: 0
-                            }} 
+                            }}
                           />
                         </div>
 
                         {isExpanded && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingLeft: '10px', marginTop: '2px', borderLeft: '1px dashed rgba(79, 70, 229, 0.15)', marginLeft: '12px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', marginTop: '4px', borderLeft: '2px solid rgba(79, 70, 229, 0.15)', marginLeft: '12px' }}>
                             {filteredChildren.map((topic: any) => {
                               const isSelected = selectedTopicName === topic.name;
+                              const topicIndexInChapter = (chapter.children || []).findIndex((t: any) => t.id === topic.id) + 1;
+                              const topicNumber = `${chapterNumber}.${topicIndexInChapter}`;
                               return (
-                                <div 
+                                <div
                                   key={topic.id}
                                   onClick={() => {
                                     setSelectedTopicName(topic.name);
+                                    setSelectedTopicNumber(topicNumber);
+                                    setSelectedChapterLabel(`Chapter ${chapterNumber}: ${chapter.name}`);
+                                    setSelectedChapter(chapter);
                                     setViewerTab('curriculum');
                                   }}
                                   style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '6px',
+                                    gap: '8px',
                                     padding: '6px 8px',
                                     fontSize: '0.78rem',
                                     fontWeight: isSelected ? 700 : 500,
@@ -804,17 +821,23 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                                     background: isSelected ? 'rgba(79, 70, 229, 0.06)' : 'transparent',
                                     borderRadius: 'var(--radius-sm)',
                                     cursor: 'pointer',
-                                    transition: 'var(--transition-smooth)'
+                                    transition: 'var(--transition-smooth)',
+                                    position: 'relative'
                                   }}
                                   className={`topic-tree-item ${isSelected ? 'selected' : ''}`}
                                 >
-                                  <span style={{
-                                    width: '5px',
-                                    height: '5px',
+                                  {/* Bullet point connecting to the left border */}
+                                  <div style={{
+                                    position: 'absolute',
+                                    left: '-19px',
+                                    width: '10px',
+                                    height: '10px',
                                     borderRadius: '50%',
-                                    background: isSelected ? 'var(--color-primary)' : 'rgba(0,0,0,0.15)',
-                                    flexShrink: 0
+                                    background: isSelected ? 'var(--color-primary)' : 'white',
+                                    border: `2px solid ${isSelected ? 'var(--color-primary)' : 'rgba(79, 70, 229, 0.3)'}`,
+                                    zIndex: 2
                                   }} />
+                                  <span className="topic-number-prefix" style={{ color: isSelected ? 'var(--color-primary)' : 'var(--text-muted)', fontWeight: 700 }}>{topicNumber}</span>
                                   <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {topic.name}
                                   </span>
@@ -847,6 +870,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                     fontWeight: 700
                   }}
                 >
+                  <Download size={14} />
                   <span>Download Curriculum Map</span>
                 </button>
               </div>
@@ -869,6 +893,9 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                   activeTab={viewerTab}
                   setActiveTab={setViewerTab}
                   selectedTopicName={selectedTopicName}
+                  selectedTopicNumber={selectedTopicNumber}
+                  selectedChapterLabel={selectedChapterLabel}
+                  selectedChapter={selectedChapter}
                 />
               ) : (
                 <div className="viewer-placeholder" style={{ flexGrow: 1 }}>

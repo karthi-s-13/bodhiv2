@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { 
   BookOpen, 
   FileText, 
@@ -26,6 +27,26 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
   onTriggerUpload,
   onLoadViewerDoc
 }) => {
+  const { token } = useAuth();
+  const [assessments, setAssessments] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAssessments = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch('/api/assessments', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAssessments(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch assessments", err);
+      }
+    };
+    fetchAssessments();
+  }, [token]);
   
   // Format bytes
   const formatBytes = (bytes: number) => {
@@ -417,44 +438,39 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {[
-          { num: "1", title: "Photosynthesis - Quiz", subtitle: "May 15, 2025 • 32 Students", score: "Avg 78%" },
-          { num: "2", title: "Plant Nutrition - MCQs", subtitle: "May 10, 2025 • 32 Students", score: "Avg 72%" }
-        ].map((as, i) => (
-          <div key={i} style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingBottom: i === 0 ? '12px' : 0,
-            borderBottom: i === 0 ? '1px solid var(--border-glass)' : 'none'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'rgba(0,0,0,0.03)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '0.85rem',
-                fontWeight: 700
-              }}>{as.num}</div>
-              <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{as.title}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{as.subtitle}</div>
+        {assessments.length > 0 ? (
+          assessments.slice(0, 5).map((as, i) => (
+            <div key={as.id || i} style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingBottom: i === 0 ? '12px' : 0,
+              borderBottom: i === 0 ? '1px solid var(--border-glass)' : 'none'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: 'rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.85rem',
+                  fontWeight: 700
+                }}>{i + 1}</div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{as.title}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatDate(as.created_at)} • {as.questions?.length || 0} Questions</div>
+                </div>
               </div>
             </div>
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: 'var(--color-success)',
-              background: 'rgba(16, 185, 129, 0.1)',
-              padding: '4px 8px',
-              borderRadius: '6px'
-            }}>{as.score}</span>
+          ))
+        ) : (
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '12px 0' }}>
+            No assessments saved yet. Generate one to see it here!
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
@@ -474,7 +490,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
 
   // Initially, PPTs and Assessments start at 0 until created by the teacher
   const pptsCount = 0;
-  const assessmentsCount = 0;
+  const assessmentsCount = assessments.length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }} className="animate-fade-in">

@@ -8,8 +8,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from .database import engine, Base, get_db, apply_schema_updates
-from .models import User, PDFDocument
-from .schemas import UserCreate, UserResponse, Token, PDFDocumentResponse, PDFDocumentSummary, SemanticSearchQuery, SemanticSearchResult
+from .models import User, PDFDocument, Assessment
+from .schemas import UserCreate, UserResponse, Token, PDFDocumentResponse, PDFDocumentSummary, SemanticSearchQuery, SemanticSearchResult, AssessmentCreate, AssessmentResponse
 from .auth import hash_password, verify_password, create_access_token, get_current_user
 from .pdf_parser import extract_text_from_pdf
 
@@ -681,3 +681,143 @@ def export_textbook_zip(
         media_type="application/x-zip-compressed",
         headers=headers
     )
+
+# --- MCQ Assessment Generator Endpoint ---
+
+from pydantic import BaseModel as _PydanticBase
+
+class MCQGenerateRequest(_PydanticBase):
+    topic_name: str
+    chapter_name: str
+    subtopics: list[str]
+    num_questions: int = 5
+
+
+@app.post("/api/documents/{doc_id}/generate-mcq")
+async def generate_mcq_assessment(
+    doc_id: int,
+    payload: MCQGenerateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Generate MCQ questions using chapter subtopics + pgvector textbook context
+    doc = db.query(PDFDocument).filter(PDFDocument.id == doc_id, PDFDocument.user_id == current_user.id).first()
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found.")
+
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    model = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
+    if not api_key:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="OpenRouter API Key not configured.")
+
+    num_q = max(1, min(payload.num_questions, 30))
+
+    # Retrieve relevant chunks via pgvector if embedded
+    textbook_context = ""
+    if doc.is_embedded:
+        try:
+            from .models import PDFChunk
+            query_text = " ".join([payload.chapter_name, payload.topic_name] + payload.subtopics[:5])
+            query_embeddings = await embed_text_chunks([query_text])
+            if query_embeddings:
+                qv = query_embeddings[0]
+                results = db.query(
+                    PDFChunk,
+                    (1.0 - PDFChunk.embedding.cosine_distance(qv)).label("similarity")
+                ).filter(PDFChunk.document_id == doc_id).order_by(
+                    PDFChunk.embedding.cosine_distance(qv)
+                ).limit(6).all()
+                chunks_text = [chunk.text_content for chunk, sim in results if float(sim) > 0.3]
+                if chunks_text:
+                    textbook_context = "\n\n---\n\n".join(chunks_text)
+        except Exception as e:
+            print(f"MCQ pgvector search failed: {e}")
+
+    subtopics_str = "\n".join(f"  - {s}" for s in payload.subtopics) if payload.subtopics else "  - (No subtopics listed)"
+
+    system_prompt = (
+        "You are an expert educational assessment designer. Generate high-quality MCQ questions for school students.\n\n"
+        "STRICT OUTPUT RULES:\n"
+        "1. Return ONLY a valid JSON array. No preamble, no explanation, no markdown code fences.\n"
+        '2. Each element: { "question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A", "explanation": "..." }\n'
+        "3. The answer field must be exactly A, B, C, or D.\n"
+        "4. Make questions clear and appropriate for school-level students.\n"
+        "5. Vary question types: recall, application, and concept-based."
+    )
+
+    ctx = f"\n\n### Relevant Textbook Content:\n{textbook_context[:4000]}" if textbook_context else "\n\n### Note: Textbook not yet indexed. Generate from subtopics and general knowledge."
+
+    user_prompt = (
+        f"Generate exactly {num_q} MCQ questions.\n\n"
+        f"Chapter: {payload.chapter_name}\n"
+        f"Topic: {payload.topic_name}\n\n"
+        f"Subtopics:\n{subtopics_str}"
+        f"{ctx}\n\nReturn a JSON array of exactly {num_q} MCQ objects."
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=90.0) as client:
+            req_headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://localhost:8000",
+                "X-Title": "Teacher PDF Portal (Bodhi v2)",
+            }
+            response = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers=req_headers,
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    "temperature": 0.7
+                }
+            )
+            if response.status_code != 200:
+                error_msg = response.text
+                try:
+                    err_json = response.json()
+                    if "error" in err_json:
+                        error_msg = err_json["error"].get("message", error_msg)
+                except Exception:
+                    pass
+                raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"OpenRouter error: {error_msg}")
+
+            result = response.json()
+            choices = result.get("choices", [])
+            if not choices:
+                raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Empty response from AI.")
+
+            raw_content = choices[0].get("message", {}).get("content", "").strip()
+            if raw_content.startswith("```"):
+                lines = [l for l in raw_content.splitlines() if not l.strip().startswith("```")]
+                raw_content = "\n".join(lines).strip()
+
+            import json as _json, re as _re
+            try:
+                questions = _json.loads(raw_content)
+                if not isinstance(questions, list):
+                    raise ValueError("Not a list")
+            except Exception:
+                match = _re.search(r"\[.*\]", raw_content, _re.DOTALL)
+                if match:
+                    questions = _json.loads(match.group())
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_502_BAD_GATEWAY,
+                        detail="Could not parse MCQ JSON from AI response."
+                    )
+
+            return {
+                "questions": questions,
+                "topic_name": payload.topic_name,
+                "chapter_name": payload.chapter_name,
+                "num_questions": len(questions),
+                "used_textbook_context": bool(textbook_context)
+            }
+    except HTTPException:
+        raise
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"OpenRouter connection failed: {str(e)}")

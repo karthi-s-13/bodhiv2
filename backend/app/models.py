@@ -46,3 +46,19 @@ class PDFChunk(Base):
     embedding = Column(Vector(2048), nullable=False)  # 2048 dimensions for Nemotron-3-embed-1b
 
     document = relationship("PDFDocument", back_populates="chunks")
+
+
+class Assessment(Base):
+    __tablename__ = "assessments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    document_id = Column(Integer, ForeignKey("pdf_documents.id", ondelete="CASCADE"), nullable=True)
+    title = Column(String, nullable=False)
+    topic_name = Column(String, nullable=True)
+    chapter_name = Column(String, nullable=True)
+    questions = Column(JSON, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    owner = relationship("User")
+    document = relationship("PDFDocument")

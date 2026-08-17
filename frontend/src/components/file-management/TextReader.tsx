@@ -6,22 +6,22 @@ interface TextReaderProps {
   document: PDFDocument;
 }
 
-export const TextReader: React.FC<TextReaderProps> = ({ document }) => {
+export const TextReader: React.FC<TextReaderProps> = ({ document: doc }) => {
   const [viewerSearch, setViewerSearch] = useState<string>('');
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(document.extracted_text);
+    navigator.clipboard.writeText(doc.extracted_text);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
   const downloadText = () => {
-    const blob = new Blob([document.extracted_text], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([doc.extracted_text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const name = document.filename.replace(/\.[^/.]+$/, "") + "_extracted.txt";
+    const name = doc.filename.replace(/\.[^/.]+$/, "") + "_extracted.txt";
     link.setAttribute('download', name);
     document.body.appendChild(link);
     link.click();
@@ -79,7 +79,7 @@ export const TextReader: React.FC<TextReaderProps> = ({ document }) => {
       </div>
 
       <div className="viewer-text-scrollable" style={{ flexGrow: 1, overflowY: 'auto' }}>
-        {highlightMatches(document.extracted_text, viewerSearch)}
+        {highlightMatches(doc.extracted_text, viewerSearch)}
       </div>
     </div>
   );

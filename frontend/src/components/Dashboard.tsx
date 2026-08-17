@@ -6,7 +6,6 @@ import { DashboardHome } from './file-management/DashboardHome';
 import { TextbookPanel } from './file-management/TextbookPanel';
 import { ComingSoon } from './file-management/ComingSoon';
 import type { PDFDocumentSummary, PDFDocument } from '../types';
-import { DEMO_TEXTBOOKS } from '../data/demoTextbooks';
 
 export const Dashboard: React.FC = () => {
   const { token, logout, user } = useAuth();
@@ -78,18 +77,6 @@ export const Dashboard: React.FC = () => {
   const loadViewerDoc = async (id: number) => {
     if (!token) return;
     
-    // Intercept demo textbook IDs
-    if (id < 0) {
-      const demoDoc = DEMO_TEXTBOOKS.find(d => d.id === id);
-      if (demoDoc) {
-        setViewerDoc(demoDoc as unknown as PDFDocument);
-        setViewerTab('curriculum');
-      } else {
-        setDocsError('Demo document not found.');
-      }
-      return;
-    }
-
     setViewerLoading(true);
     setDocsError(null);
     try {

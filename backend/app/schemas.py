@@ -68,3 +68,28 @@ class SemanticSearchResult(BaseModel):
 
     class Config:
         from_attributes = True
+
+# Assessment Schemas
+class MCQQuestionSchema(BaseModel):
+    question: str
+    options: list[str]
+    answer: str
+    explanation: Optional[str] = None
+
+class AssessmentBase(BaseModel):
+    title: str
+    topic_name: Optional[str] = None
+    chapter_name: Optional[str] = None
+    questions: list[MCQQuestionSchema]
+
+class AssessmentCreate(AssessmentBase):
+    pass
+
+class AssessmentResponse(AssessmentBase):
+    id: int
+    user_id: int
+    document_id: Optional[int] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

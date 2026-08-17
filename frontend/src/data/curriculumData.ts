@@ -196,9 +196,11 @@ export const SEEDED_CURRICULUM_DATA: Record<string, CurriculumTopicDetails> = {
 };
 
 // Fallback generator for dynamically uploaded textbooks
-export const generateFallbackCurriculum = (topicName: string): CurriculumTopicDetails => {
+export const generateFallbackCurriculum = (topicName: string, topicNumber?: string): CurriculumTopicDetails => {
+  const numPrefix = topicNumber ? `${topicNumber} ` : '';
+  const childNum = (n: number) => topicNumber ? `${topicNumber}.${n} ` : '';
   return {
-    title: topicName,
+    title: `${numPrefix}${topicName}`,
     tag: "Topic Overview",
     description: `Detailed syllabus analysis and educational lesson resources for "${topicName}".`,
     estimatedTime: "45 min",
@@ -212,20 +214,20 @@ export const generateFallbackCurriculum = (topicName: string): CurriculumTopicDe
       activities: 1
     },
     tree: {
-      rootTitle: topicName,
+      rootTitle: `${numPrefix}${topicName}`,
       children: [
         {
-          title: "Section 1: Introduction",
+          title: `${childNum(1)}Introduction`,
           icon: "BookOpen",
           concepts: ["Fundamental Definition", "Historical Context", "Core Premises"]
         },
         {
-          title: "Section 2: Key Methodology",
+          title: `${childNum(2)}Key Methodology`,
           icon: "Cog",
           concepts: ["System Components", "Step-by-step Process", "Operational Laws"]
         },
         {
-          title: "Section 3: Applications",
+          title: `${childNum(3)}Applications`,
           icon: "Target",
           concepts: ["Practical Uses", "Technological Integrations", "Industry Impact"]
         }
