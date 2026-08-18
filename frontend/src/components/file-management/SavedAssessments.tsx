@@ -1,42 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { Presentation, Clock, BookOpen, Layers, Eye, Loader2, AlertCircle } from 'lucide-react';
-import { PPTModal } from './PPTModal';
+import { FileSpreadsheet, Clock, BookOpen, Layers, Eye, Loader2, AlertCircle } from 'lucide-react';
+import { MCQAssessmentModal } from './MCQAssessmentModal';
 
-interface SavedPresentationsProps {
+interface SavedAssessmentsProps {
   docId?: number;
   token: string;
 }
 
-export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, token }) => {
-  const [presentations, setPresentations] = useState<any[]>([]);
+export const SavedAssessments: React.FC<SavedAssessmentsProps> = ({ docId, token }) => {
+  const [assessments, setAssessments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPresentation, setSelectedPresentation] = useState<any | null>(null);
+  const [selectedAssessment, setSelectedAssessment] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetchPresentations = async () => {
+    const fetchAssessments = async () => {
       try {
-        const endpoint = docId ? `/api/documents/${docId}/presentations` : `/api/presentations`;
+        const endpoint = docId ? `/api/documents/${docId}/assessments` : `/api/assessments`;
         const response = await fetch(endpoint, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (!response.ok) throw new Error('Failed to fetch presentations');
+        if (!response.ok) throw new Error('Failed to fetch assessments');
         const data = await response.json();
-        setPresentations(data);
+        setAssessments(data);
       } catch (err: any) {
-        setError(err.message || 'An error occurred while fetching presentations.');
+        setError(err.message || 'An error occurred while fetching assessments.');
       } finally {
         setLoading(false);
       }
     };
-    fetchPresentations();
+    fetchAssessments();
   }, [docId, token]);
 
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px' }}>
         <Loader2 size={32} className="animate-spin" style={{ color: 'var(--color-primary)', marginBottom: '16px' }} />
-        <p style={{ color: 'var(--text-muted)' }}>Loading saved presentations...</p>
+        <p style={{ color: 'var(--text-muted)' }}>Loading saved Assessments...</p>
       </div>
     );
   }
@@ -53,18 +53,18 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
     );
   }
 
-  if (presentations.length === 0) {
+  if (assessments.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
         <div style={{ 
           width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(198, 138, 61, 0.1)', 
           color: '#C68A3D', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' 
         }}>
-          <Presentation size={32} />
+          <FileSpreadsheet size={32} />
         </div>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>No Saved Presentations</h3>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>No Saved Assessments</h3>
         <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto' }}>
-          You haven't saved any lesson presentations for this textbook yet. Generate one from the Curriculum Map and click "Save to Bodhi".
+          You haven't saved any lesson Assessments for this textbook yet. Generate one from the Curriculum Map and click "Save to Bodhi".
         </p>
       </div>
     );
@@ -73,12 +73,12 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
   return (
     <div style={{ padding: '24px' }}>
       <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <Presentation size={24} style={{ color: '#C68A3D' }} />
-        Saved Presentations
+        <FileSpreadsheet size={24} style={{ color: '#C68A3D' }} />
+        Saved Assessments
       </h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-        {presentations.map((pres) => (
+        {assessments.map((pres) => (
           <div key={pres.id} style={{
             background: 'var(--bg-card)', borderRadius: '14px', border: '1px solid var(--border-glass)',
             boxShadow: 'var(--shadow-premium)', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px'
@@ -104,7 +104,7 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
 
             <div style={{ display: 'flex', gap: '10px', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--border-glass)' }}>
               <button 
-                onClick={() => setSelectedPresentation(pres)}
+                onClick={() => setSelectedAssessment(pres)}
                 style={{
                   flex: 1, padding: '10px', background: 'rgba(198, 138, 61, 0.1)', color: '#C68A3D',
                   border: 'none', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
@@ -118,16 +118,16 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
         ))}
       </div>
 
-      {selectedPresentation && (
-        <PPTModal
+      {selectedAssessment && (
+        <MCQAssessmentModal
           docId={docId || 0}
           token={token}
           isEmbedded={true}
-          topicName={selectedPresentation.topic_name || ''}
-          chapterName={selectedPresentation.chapter_name || ''}
+          topicName={selectedAssessment.topic_name || ''}
+          chapterName={selectedAssessment.chapter_name || ''}
           subtopics={[]}
-          initialPresentation={selectedPresentation}
-          onClose={() => setSelectedPresentation(null)}
+          initialAssessment={selectedAssessment}
+          onClose={() => setSelectedAssessment(null)}
         />
       )}
     </div>

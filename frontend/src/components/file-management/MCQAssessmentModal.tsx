@@ -41,6 +41,7 @@ interface MCQAssessmentModalProps {
   topicName: string;
   chapterName: string;
   subtopics: string[];
+  initialAssessment?: any;
   onClose: () => void;
 }
 
@@ -51,18 +52,25 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
   topicName,
   chapterName,
   subtopics,
+  initialAssessment,
   onClose
 }) => {
   const [numQuestions, setNumQuestions] = useState<number>(5);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<MCQResult | null>(null);
+  const [result, setResult] = useState<MCQResult | null>(initialAssessment ? { 
+    questions: initialAssessment.questions, 
+    topic_name: topicName, 
+    chapter_name: chapterName, 
+    num_questions: initialAssessment.questions.length, 
+    used_textbook_context: false 
+  } : null);
   const [revealedAnswers, setRevealedAnswers] = useState<Record<number, boolean>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<number, string>>({});
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<MCQQuestion | null>(null);
   const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(!!initialAssessment);
   const optionLetters = ['A', 'B', 'C', 'D'];
 
   const handleGenerate = async () => {
@@ -332,7 +340,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
                   const revealed = revealedAnswers[idx];
                   const isCorrect = selected === q.answer;
                   return (
-                    <div key={idx} style={{ background: 'var(--bg-panel)', border: `1px solid ${revealed && selected ? (isCorrect ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)') : 'var(--border-glass)'}`, borderRadius: 'var(--radius-md)', padding: '20px', transition: 'border-color 0.2s' }}>
+                    <div key={idx} className="mcq-question-item" style={{ background: 'var(--bg-panel)', border: `1px solid ${revealed && selected ? (isCorrect ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)') : 'var(--border-glass)'}`, borderRadius: 'var(--radius-md)', padding: '20px', transition: 'border-color 0.2s' }}>
                       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                         <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#C68A3D,#E3B36B)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
                         <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.5, flexGrow: 1 }}>{q.question}</p>

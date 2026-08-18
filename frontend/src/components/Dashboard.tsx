@@ -5,6 +5,8 @@ import { Sidebar } from './file-management/Sidebar';
 import { DashboardHome } from './file-management/DashboardHome';
 import { TextbookPanel } from './file-management/TextbookPanel';
 import { ComingSoon } from './file-management/ComingSoon';
+import { SavedPresentations } from './file-management/SavedPresentations';
+import { SavedAssessments } from './file-management/SavedAssessments';
 import type { PDFDocumentSummary, PDFDocument } from '../types';
 import bodhiLogo from '../assets/image.png';
 
@@ -468,13 +470,25 @@ export const Dashboard: React.FC = () => {
           />
         )}
         
-        {activeSidebarTab !== 'dashboard' && activeSidebarTab !== 'textbooks' && (
+        {activeSidebarTab === 'materials' && (
+          <div style={{ padding: '24px', height: '100%', overflowY: 'auto' }} className="animate-fade-in">
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '24px' }}>PPT & Materials</h2>
+            <SavedPresentations token={token || ''} />
+          </div>
+        )}
+
+        {activeSidebarTab === 'assessments' && (
+          <div style={{ padding: '24px', height: '100%', overflowY: 'auto' }} className="animate-fade-in">
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '24px' }}>Assessments</h2>
+            <SavedAssessments token={token || ''} />
+          </div>
+        )}
+
+        {activeSidebarTab !== 'dashboard' && activeSidebarTab !== 'textbooks' && activeSidebarTab !== 'materials' && activeSidebarTab !== 'assessments' && (
           <ComingSoon 
             tabName={
               activeSidebarTab === 'curriculum' ? 'Curriculum Map' :
               activeSidebarTab === 'lessons' ? 'Lesson Planner' :
-              activeSidebarTab === 'materials' ? 'PPT & Materials' :
-              activeSidebarTab === 'assessments' ? 'Assessments' :
               activeSidebarTab === 'homework' ? 'Homework' :
               activeSidebarTab === 'analytics' ? 'Class Analytics' :
               activeSidebarTab === 'students' ? 'Students' :

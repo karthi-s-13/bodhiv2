@@ -2189,3 +2189,59 @@ mark.search-highlight {
 }
 
 
+
+@media print {
+  body {
+    background: white !important;
+  }
+  
+  #root > *:not(.modal-container):not(:has(.modal-container)) {
+    display: none !important;
+  }
+
+  #root, #root > div, main, .app-layout {
+    display: block !important;
+    position: static !important;
+    height: auto !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  .modal-container {
+    position: static !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .modal-content-scrollable,
+  .modal-container > div {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .modal-container button,
+  .modal-container .header-close-btn {
+    display: none !important;
+  }
+
+  .mcq-question-item {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border: 1px solid #ddd !important;
+    background: white !important;
+  }
+
+  .sidebar, .dashboard-header {
+    display: none !important;
+  }
+  
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+}
