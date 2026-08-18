@@ -1214,3 +1214,72 @@ def get_presentations(
         LessonPresentation.user_id == current_user.id
     ).order_by(LessonPresentation.created_at.desc()).all()
     return presentations
+
+@app.get("/api/presentations", response_model=List[PresentationResponse])
+def get_all_presentations(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    presentations = db.query(LessonPresentation).filter(
+        LessonPresentation.user_id == current_user.id
+    ).order_by(LessonPresentation.created_at.desc()).all()
+    return presentations
+
+# --- Assessment Endpoints ---
+
+@app.post("/api/documents/{doc_id}/assessments", response_model=AssessmentResponse, status_code=status.HTTP_201_CREATED)
+def create_assessment(
+    doc_id: int,
+    payload: AssessmentCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    doc = db.query(PDFDocument).filter(
+        PDFDocument.id == doc_id, PDFDocument.user_id == current_user.id
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found.")
+
+    # Properly dump Pydantic objects to JSON serializable dictionaries
+    questions_data = [q.model_dump() if hasattr(q, "model_dump") else q.dict() for q in payload.questions]
+
+    new_assessment = Assessment(
+        user_id=current_user.id,
+        document_id=doc_id,
+        title=payload.title,
+        topic_name=payload.topic_name,
+        chapter_name=payload.chapter_name,
+        questions=questions_data
+    )
+    db.add(new_assessment)
+    db.commit()
+    db.refresh(new_assessment)
+    return new_assessment
+
+@app.get("/api/assessments", response_model=List[AssessmentResponse])
+def get_all_assessments(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    assessments = db.query(Assessment).filter(
+        Assessment.user_id == current_user.id
+    ).order_by(Assessment.created_at.desc()).all()
+    return assessments
+
+@app.get("/api/documents/{doc_id}/assessments", response_model=List[AssessmentResponse])
+def get_document_assessments(
+    doc_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    doc = db.query(PDFDocument).filter(
+        PDFDocument.id == doc_id, PDFDocument.user_id == current_user.id
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found.")
+
+    assessments = db.query(Assessment).filter(
+        Assessment.document_id == doc_id,
+        Assessment.user_id == current_user.id
+    ).order_by(Assessment.created_at.desc()).all()
+    return assessments

@@ -78,25 +78,25 @@ const SlideThumbnail: React.FC<{
       style={{
         display: 'flex', alignItems: 'center', gap: '10px',
         padding: '10px 12px', borderRadius: '10px', cursor: 'pointer',
-        background: isActive ? 'rgba(79,70,229,0.1)' : 'transparent',
-        border: `1px solid ${isActive ? 'rgba(79,70,229,0.4)' : 'transparent'}`,
+        background: isActive ? 'rgba(198,138,61,0.1)' : 'transparent',
+        border: `1px solid ${isActive ? 'rgba(198,138,61,0.4)' : 'transparent'}`,
         transition: 'all 0.15s ease',
       }}
     >
       <div style={{
         width: '52px', height: '34px', borderRadius: '5px',
-        background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', flexShrink: 0,
+        background: 'linear-gradient(135deg, #C68A3D, #E3B36B)', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '0.65rem', fontWeight: 900, color: 'white',
         textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-        boxShadow: isActive ? '0 0 0 2px #4F46E5' : '0 1px 4px rgba(0,0,0,0.15)',
+        boxShadow: isActive ? '0 0 0 2px #C68A3D' : '0 1px 4px rgba(0,0,0,0.15)',
       }}>
         {index + 1}
       </div>
       <div style={{ minWidth: 0 }}>
         <div style={{
           fontSize: '0.72rem', fontWeight: 700,
-          color: isActive ? '#4F46E5' : 'var(--text-primary)',
+          color: isActive ? '#C68A3D' : 'var(--text-primary)',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px',
         }}>
           {slide.title || `Slide ${index + 1}`}
@@ -125,7 +125,7 @@ const SlideCanvas: React.FC<{
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header band */}
       <div style={{
-        background: 'white', borderRadius: '16px', padding: '24px 32px',
+        background: 'var(--bg-card)', borderRadius: '16px', padding: '24px 32px',
         border: '1px solid var(--border-glass)', boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
         textAlign: 'center',
       }}>
@@ -146,8 +146,8 @@ const SlideCanvas: React.FC<{
         {/* Concept */}
         <div style={{ background: '#F8F9FA', borderRadius: '12px', padding: '20px', border: '1px solid #E5E7EB' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <span style={{ background: '#EEF2FF', color: '#4F46E5', width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 900 }}>①</span>
-            <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#4F46E5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Concept</h3>
+            <span style={{ background: '#EEF2FF', color: '#C68A3D', width: '24px', height: '24px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 900 }}>①</span>
+            <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#C68A3D', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Concept</h3>
           </div>
           {renderList(slide.concept)}
         </div>
@@ -208,10 +208,10 @@ const ConfigPhase: React.FC<{
     <div style={{ textAlign: 'center' }}>
       <div style={{
         width: '72px', height: '72px', borderRadius: '20px',
-        background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+        background: 'linear-gradient(135deg, #C68A3D, #E3B36B)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         margin: '0 auto 20px',
-        boxShadow: '0 8px 32px rgba(79,70,229,0.3)',
+        boxShadow: '0 8px 32px rgba(198,138,61,0.3)',
       }}>
         <Presentation size={32} style={{ color: 'white' }} />
       </div>
@@ -226,12 +226,12 @@ const ConfigPhase: React.FC<{
     {/* Topic info card */}
     <div style={{
       width: '100%',
-      background: 'linear-gradient(135deg, rgba(79,70,229,0.06), rgba(124,58,237,0.06))',
-      border: '1px solid rgba(79,70,229,0.2)', borderRadius: '14px', padding: '20px 24px',
+      background: 'linear-gradient(135deg, rgba(198,138,61,0.06), rgba(227,179,107,0.06))',
+      border: '1px solid rgba(198,138,61,0.2)', borderRadius: '14px', padding: '20px 24px',
       display: 'flex', flexDirection: 'column', gap: '8px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <BookOpen size={18} style={{ color: '#4F46E5', flexShrink: 0 }} />
+        <BookOpen size={18} style={{ color: '#C68A3D', flexShrink: 0 }} />
         <div style={{ flexGrow: 1 }}>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Topic</div>
           {subtopics && subtopics.length > 0 ? (
@@ -242,7 +242,7 @@ const ConfigPhase: React.FC<{
                 width: '100%', padding: '8px 12px', marginTop: '4px',
                 borderRadius: '8px', border: '1px solid var(--border-glass)',
                 fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)',
-                background: 'white', cursor: 'pointer', outline: 'none'
+                background: 'var(--bg-card)', cursor: 'pointer', outline: 'none'
               }}
             >
               {!subtopics.includes(topicName) && (
@@ -257,9 +257,9 @@ const ConfigPhase: React.FC<{
           )}
         </div>
       </div>
-      <div style={{ height: '1px', background: 'rgba(79,70,229,0.12)' }} />
+      <div style={{ height: '1px', background: 'rgba(198,138,61,0.12)' }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <Layers size={16} style={{ color: '#4F46E5', flexShrink: 0 }} />
+        <Layers size={16} style={{ color: '#C68A3D', flexShrink: 0 }} />
         <div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Chapter</div>
           <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{chapterName}</div>
@@ -283,7 +283,7 @@ const ConfigPhase: React.FC<{
     {/* Duration selector */}
     <div style={{ width: '100%' }}>
       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '12px' }}>
-        <Clock size={16} style={{ color: '#4F46E5' }} />
+        <Clock size={16} style={{ color: '#C68A3D' }} />
         Lesson Duration
       </label>
       <div style={{ display: 'flex', gap: '12px' }}>
@@ -293,9 +293,9 @@ const ConfigPhase: React.FC<{
             onClick={() => setDuration(d)}
             style={{
               flex: 1, padding: '12px', borderRadius: '10px',
-              border: `2px solid ${duration === d ? '#4F46E5' : 'var(--border-glass)'}`,
-              background: duration === d ? 'rgba(79,70,229,0.08)' : 'white',
-              color: duration === d ? '#4F46E5' : 'var(--text-secondary)',
+              border: `2px solid ${duration === d ? '#C68A3D' : 'var(--border-glass)'}`,
+              background: duration === d ? 'rgba(198,138,61,0.08)' : 'white',
+              color: duration === d ? '#C68A3D' : 'var(--text-secondary)',
               fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s',
             }}
           >
@@ -323,12 +323,12 @@ const ConfigPhase: React.FC<{
       disabled={loading}
       style={{
         width: '100%', padding: '16px',
-        background: loading ? 'rgba(79,70,229,0.5)' : 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+        background: loading ? 'rgba(198,138,61,0.5)' : 'linear-gradient(135deg, #C68A3D, #E3B36B)',
         color: 'white', border: 'none', borderRadius: '12px',
         fontSize: '1rem', fontWeight: 800,
         cursor: loading ? 'not-allowed' : 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-        boxShadow: loading ? 'none' : '0 4px 20px rgba(79,70,229,0.35)',
+        boxShadow: loading ? 'none' : '0 4px 20px rgba(198,138,61,0.35)',
         transition: 'all 0.2s',
       }}
     >
@@ -502,7 +502,7 @@ export const PPTModal: React.FC<PPTModalProps> = ({
       background: 'rgba(10,10,20,0.75)', backdropFilter: 'blur(8px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
     }}>
-      <div style={{
+      <div className="modal-container" style={{
         background: 'var(--bg-card, #fff)', borderRadius: '20px', width: '100%',
         maxWidth: phase === 'viewer' ? '1100px' : '620px',
         height: phase === 'viewer' ? '90vh' : 'auto',
@@ -514,12 +514,12 @@ export const PPTModal: React.FC<PPTModalProps> = ({
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '18px 24px', borderBottom: '1px solid var(--border-glass)', flexShrink: 0,
-          background: 'linear-gradient(135deg, rgba(79,70,229,0.04), rgba(124,58,237,0.03))',
+          background: 'linear-gradient(135deg, rgba(198,138,61,0.04), rgba(227,179,107,0.03))',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
               width: '36px', height: '36px', borderRadius: '10px',
-              background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+              background: 'linear-gradient(135deg, #C68A3D, #E3B36B)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <Presentation size={18} style={{ color: 'white' }} />
@@ -537,21 +537,21 @@ export const PPTModal: React.FC<PPTModalProps> = ({
               <>
                 <button onClick={() => { setPhase('config'); setResult(null); setError(null); }} style={{
                   display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 12px', borderRadius: '8px',
-                  background: 'white', border: '1px solid var(--border-glass)',
+                  background: 'var(--bg-card)', border: '1px solid var(--border-glass)',
                   color: 'var(--text-secondary)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
                 }}>
                   <RefreshCw size={14} /> Regenerate
                 </button>
                 <button onClick={handleDownloadPPTX} style={{
                   display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 12px', borderRadius: '8px',
-                  background: 'white', border: '1px solid var(--border-glass)',
-                  color: '#4F46E5', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
+                  background: 'var(--bg-card)', border: '1px solid var(--border-glass)',
+                  color: '#C68A3D', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
                 }}>
                   <Download size={14} /> Download PPTX
                 </button>
                 <button onClick={handleDownloadJSON} style={{
                   display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 12px', borderRadius: '8px',
-                  background: 'white', border: '1px solid var(--border-glass)',
+                  background: 'var(--bg-card)', border: '1px solid var(--border-glass)',
                   color: 'var(--text-secondary)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
                 }}>
                   <Download size={14} /> JSON
@@ -559,7 +559,7 @@ export const PPTModal: React.FC<PPTModalProps> = ({
                 {!initialPresentation && (
                   <button onClick={handleSavePPT} disabled={isSaving || saveSuccess} style={{
                     display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 12px', borderRadius: '8px',
-                    background: saveSuccess ? '#10B981' : (isSaving ? 'rgba(79,70,229,0.5)' : '#4F46E5'), 
+                    background: saveSuccess ? '#10B981' : (isSaving ? 'rgba(198,138,61,0.5)' : '#C68A3D'), 
                     border: 'none',
                     color: 'white', fontSize: '0.78rem', fontWeight: 700, 
                     cursor: (isSaving || saveSuccess) ? 'default' : 'pointer',
@@ -593,9 +593,9 @@ export const PPTModal: React.FC<PPTModalProps> = ({
               />
             </div>
           ) : (
-            <div style={{ display: 'flex', width: '100%', minHeight: 0 }}>
+            <div className="ppt-viewer-layout" style={{ display: 'flex', width: '100%', minHeight: 0 }}>
               {/* Slide navigator */}
-              <div style={{
+              <div className="ppt-slide-nav" style={{
                 width: '220px', flexShrink: 0, borderRight: '1px solid var(--border-glass)',
                 display: 'flex', flexDirection: 'column',
                 padding: '16px 12px', gap: '4px', overflowY: 'auto',
@@ -616,7 +616,7 @@ export const PPTModal: React.FC<PPTModalProps> = ({
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '16px',
                     padding: '10px 24px', borderBottom: '1px solid var(--border-glass)',
-                    flexShrink: 0, background: 'white',
+                    flexShrink: 0, background: 'var(--bg-card)',
                   }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <BookOpen size={13} /> {result.presentation.subject}
@@ -646,7 +646,7 @@ export const PPTModal: React.FC<PPTModalProps> = ({
                 <div style={{
                   flexShrink: 0, borderTop: '1px solid var(--border-glass)',
                   padding: '14px 24px', display: 'flex', alignItems: 'center',
-                  justifyContent: 'space-between', background: 'white',
+                  justifyContent: 'space-between', background: 'var(--bg-card)',
                 }}>
                   <button
                     onClick={() => setCurrentSlide(prev => Math.max(prev - 1, 0))}
@@ -669,7 +669,7 @@ export const PPTModal: React.FC<PPTModalProps> = ({
                       <div key={idx} onClick={() => setCurrentSlide(idx)} style={{
                         width: currentSlide === idx ? '20px' : '8px',
                         height: '8px', borderRadius: '4px',
-                        background: currentSlide === idx ? '#4F46E5' : 'var(--border-glass)',
+                        background: currentSlide === idx ? '#C68A3D' : 'var(--border-glass)',
                         cursor: 'pointer', transition: 'all 0.2s',
                       }} />
                     ))}
@@ -681,12 +681,12 @@ export const PPTModal: React.FC<PPTModalProps> = ({
                     style={{
                       display: 'flex', alignItems: 'center', gap: '6px',
                       padding: '8px 16px', borderRadius: '8px',
-                      background: currentSlide === slides.length - 1 ? 'rgba(0,0,0,0.04)' : 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                      background: currentSlide === slides.length - 1 ? 'rgba(0,0,0,0.04)' : 'linear-gradient(135deg, #C68A3D, #E3B36B)',
                       border: 'none',
                       color: currentSlide === slides.length - 1 ? 'var(--text-muted)' : 'white',
                       fontSize: '0.85rem', fontWeight: 700,
                       cursor: currentSlide === slides.length - 1 ? 'not-allowed' : 'pointer',
-                      boxShadow: currentSlide === slides.length - 1 ? 'none' : '0 2px 8px rgba(79,70,229,0.3)',
+                      boxShadow: currentSlide === slides.length - 1 ? 'none' : '0 2px 8px rgba(198,138,61,0.3)',
                     }}
                   >
                     Next <ChevronRight size={16} />

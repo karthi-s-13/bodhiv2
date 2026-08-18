@@ -21,7 +21,7 @@ export const ComingSoon: React.FC<ComingSoonProps> = ({ tabName, onBack }) => {
         width: '72px',
         height: '72px',
         borderRadius: '50%',
-        background: 'rgba(79, 70, 229, 0.1)',
+        background: 'rgba(198, 138, 61, 0.1)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

@@ -500,7 +500,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               }
             }}
             style={{
-              background: selectedItemId === item.id ? 'rgba(79, 70, 229, 0.05)' : 'rgba(0,0,0,0.01)',
+              background: selectedItemId === item.id ? 'rgba(198, 138, 61, 0.05)' : 'rgba(0,0,0,0.01)',
               border: selectedItemId === item.id ? '2px solid var(--color-primary)' : '1px solid var(--border-glass)',
               borderRadius: 'var(--radius-md)',
               padding: '22px 16px',

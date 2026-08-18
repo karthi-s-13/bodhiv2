@@ -61,6 +61,10 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
     details = generateFallbackCurriculum(topicName, topicNumber);
   }
 
+  // When real chapter data is available, the tree root represents the whole chapter
+  // (not just the selected topic), so it shouldn't carry the topic's own number chip.
+  const usingChapterOverride = !!(chapterData && chapterData.children && chapterData.children.length > 0);
+
   // Override the tree graph dynamically using the actual textbook chapter structure if available
   if (chapterData && chapterData.children && chapterData.children.length > 0) {
     // Deep clone to avoid mutating the original seeded data or fallback data
@@ -84,7 +88,7 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
   const displayTitle = titleParts.number ? titleParts.rest : details.title;
 
   const rootParts = splitLeadingNumber(details.tree.rootTitle);
-  const rootDisplayNumber = topicNumber || rootParts.number;
+  const rootDisplayNumber = usingChapterOverride ? null : (topicNumber || rootParts.number);
   const rootDisplayTitle = rootParts.number ? rootParts.rest : details.tree.rootTitle;
 
   // Get corresponding Lucide Icon for tree child cards
@@ -104,7 +108,7 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
     <div className="curriculum-map-container">
       
       {/* Selected Topic Details Header Card */}
-      <div className="topic-details-card" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', padding: '24px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-lg)', marginBottom: '24px', boxShadow: 'var(--shadow-premium)' }}>
+      <div className="topic-details-card" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', padding: '24px', background: 'var(--bg-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-lg)', marginBottom: '24px', boxShadow: 'var(--shadow-premium)' }}>
         
         {/* Left Column: Info and Metrics */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -168,7 +172,7 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
             </div>
 
             <div className="metric-box" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div className="metric-mini-icon" style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(6, 182, 212, 0.1)', color: '#06B6D4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="metric-mini-icon" style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(94, 124, 158, 0.1)', color: '#5E7C9E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Award size={16} />
               </div>
               <div>
@@ -192,16 +196,16 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
               style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '10px 12px',
-                background: 'linear-gradient(135deg, rgba(79,70,229,0.06), rgba(124,58,237,0.06))',
+                background: 'linear-gradient(135deg, rgba(198,138,61,0.06), rgba(227,179,107,0.06))',
                 borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700,
                 cursor: 'pointer',
-                border: '1px solid rgba(79,70,229,0.18)',
+                border: '1px solid rgba(198,138,61,0.18)',
                 color: 'var(--color-primary)',
                 width: '100%',
                 transition: 'all 0.2s'
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(79,70,229,0.12),rgba(124,58,237,0.12))'; e.currentTarget.style.borderColor = 'rgba(79,70,229,0.35)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(79,70,229,0.06),rgba(124,58,237,0.06))'; e.currentTarget.style.borderColor = 'rgba(79,70,229,0.18)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(198,138,61,0.12),rgba(227,179,107,0.12))'; e.currentTarget.style.borderColor = 'rgba(198,138,61,0.35)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(198,138,61,0.06),rgba(227,179,107,0.06))'; e.currentTarget.style.borderColor = 'rgba(198,138,61,0.18)'; }}
             >
               <span>🎯 PPT Presentation</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', opacity: 0.8 }}>
@@ -234,16 +238,16 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
               style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '10px 12px',
-                background: 'linear-gradient(135deg, rgba(79,70,229,0.08), rgba(124,58,237,0.08))',
+                background: 'linear-gradient(135deg, rgba(198,138,61,0.08), rgba(227,179,107,0.08))',
                 borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700,
                 cursor: 'pointer',
-                border: '1px solid rgba(79,70,229,0.2)',
+                border: '1px solid rgba(198,138,61,0.2)',
                 color: 'var(--color-primary)',
                 width: '100%',
                 transition: 'all 0.2s'
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(79,70,229,0.14),rgba(124,58,237,0.14))'; e.currentTarget.style.borderColor = 'rgba(79,70,229,0.4)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(79,70,229,0.08),rgba(124,58,237,0.08))'; e.currentTarget.style.borderColor = 'rgba(79,70,229,0.2)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(198,138,61,0.14),rgba(227,179,107,0.14))'; e.currentTarget.style.borderColor = 'rgba(198,138,61,0.4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(198,138,61,0.08),rgba(227,179,107,0.08))'; e.currentTarget.style.borderColor = 'rgba(198,138,61,0.2)'; }}
             >
               <span>⚡ MCQ Assessment</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', opacity: 0.8 }}>
@@ -277,13 +281,13 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
         
         {/* Top Toolbar overlay inside graph */}
         <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px' }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>
             <Maximize2 size={12} /> Expand All
           </button>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>
             <Minimize2 size={12} /> Collapse All
           </button>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>
             <List size={12} /> Legend
           </button>
         </div>
@@ -298,7 +302,7 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '30px' }}>
           {/* Parent Node */}
           <div className="tree-root-wrapper" style={{ position: 'relative', marginBottom: '40px' }}>
-            <div className="tree-root-node" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'white', padding: '12px 24px', border: '2px solid var(--color-primary)', borderRadius: '30px', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.15)', zIndex: 2, position: 'relative' }}>
+            <div className="tree-root-node" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--bg-card)', padding: '12px 24px', border: '2px solid var(--color-primary)', borderRadius: '30px', boxShadow: '0 4px 12px rgba(198, 138, 61, 0.15)', zIndex: 2, position: 'relative' }}>
               <Leaf size={20} style={{ color: 'var(--color-primary)' }} />
               <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                 {rootDisplayNumber && <span style={{ marginRight: '6px' }}>{rootDisplayNumber}</span>}
@@ -321,8 +325,8 @@ export const CurriculumMap: React.FC<CurriculumMapProps> = ({ topicName, topicNu
                 <div style={{ position: 'absolute', top: '-40px', left: '50%', width: '2px', height: '40px', background: 'var(--color-primary)', transform: 'translateX(-50%)' }}></div>
 
                 {/* Card Header (Icon on Left) */}
-                <div className="child-card-header" style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'white', padding: '12px 16px', border: '1px solid var(--border-glass-active)', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', width: '100%', zIndex: 2, position: 'relative' }}>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(79, 70, 229, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="child-card-header" style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-card)', padding: '12px 16px', border: '1px solid var(--border-glass-active)', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', width: '100%', zIndex: 2, position: 'relative' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(198, 138, 61, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {renderTreeIcon(child.icon)}
                   </div>
                   <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>{child.title}</span>

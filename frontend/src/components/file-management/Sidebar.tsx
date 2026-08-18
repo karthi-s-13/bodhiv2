@@ -19,6 +19,8 @@ interface SidebarProps {
   setShowAskBodhiChat: (show: boolean) => void;
   userName?: string;
   onLogout: () => void;
+  mobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -26,77 +28,82 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveSidebarTab,
   setShowAskBodhiChat,
   userName,
-  onLogout
+  onLogout,
+  mobileOpen,
+  setMobileOpen
 }) => {
+  const handleNavClick = (tab: string) => {
+    setActiveSidebarTab(tab);
+    setMobileOpen(false); // Close mobile drawer when an item is selected
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="logo-container">
-        <BookOpen className="logo-icon" style={{ color: '#38BDF8' }} />
+        <BookOpen className="logo-icon" style={{ color: '#E3B36B' }} />
         <span className="logo-text">BODHI AI Co-Teacher</span>
       </div>
 
       <nav className="sidebar-nav">
         <div 
           className={`nav-item ${activeSidebarTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('dashboard')}
+          onClick={() => handleNavClick('dashboard')}
         >
           <Home className="nav-item-icon" />
           <span>Dashboard</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'textbooks' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveSidebarTab('textbooks');
-          }}
+          onClick={() => handleNavClick('textbooks')}
         >
           <BookOpen className="nav-item-icon" />
           <span>My Textbooks</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'curriculum' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('curriculum')}
+          onClick={() => handleNavClick('curriculum')}
         >
           <Map className="nav-item-icon" />
           <span>Curriculum Map</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'lessons' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('lessons')}
+          onClick={() => handleNavClick('lessons')}
         >
           <Calendar className="nav-item-icon" />
           <span>Lesson Planner</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'materials' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('materials')}
+          onClick={() => handleNavClick('materials')}
         >
           <Presentation className="nav-item-icon" />
           <span>PPT & Materials</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'assessments' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('assessments')}
+          onClick={() => handleNavClick('assessments')}
         >
           <FileSpreadsheet className="nav-item-icon" />
           <span>Assessments</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'homework' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('homework')}
+          onClick={() => handleNavClick('homework')}
         >
           <BookOpen className="nav-item-icon" />
           <span>Homework</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'analytics' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('analytics')}
+          onClick={() => handleNavClick('analytics')}
         >
           <BarChart2 className="nav-item-icon" />
           <span>Class Analytics</span>
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'students' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('students')}
+          onClick={() => handleNavClick('students')}
         >
           <Users className="nav-item-icon" />
           <span>Students</span>
@@ -104,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div 
           className={`nav-item ${activeSidebarTab === 'ask' ? 'active' : ''}`}
           onClick={() => {
-            setActiveSidebarTab('dashboard');
+            handleNavClick('dashboard');
             setShowAskBodhiChat(true);
           }}
         >
@@ -113,7 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
         <div 
           className={`nav-item ${activeSidebarTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveSidebarTab('settings')}
+          onClick={() => handleNavClick('settings')}
         >
           <Settings className="nav-item-icon" />
           <span>Settings</span>
@@ -123,7 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* User Info & Sign Out */}
       <div className="sidebar-user">
         <div className="user-info">
-          <div className="user-avatar" style={{ background: '#4F46E5' }}>
+          <div className="user-avatar" style={{ background: '#C68A3D' }}>
             {userName ? userName.substring(0, 2).toUpperCase() : 'AS'}
           </div>
           <div className="user-details">

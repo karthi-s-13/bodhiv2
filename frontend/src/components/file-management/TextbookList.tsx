@@ -97,7 +97,7 @@ export const TextbookList: React.FC<TextbookListProps> = ({
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '12px 14px',
-                  background: isSelected ? 'rgba(79, 70, 229, 0.08)' : 'rgba(0,0,0,0.01)',
+                  background: isSelected ? 'rgba(198, 138, 61, 0.08)' : 'rgba(0,0,0,0.01)',
                   border: isSelected ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',

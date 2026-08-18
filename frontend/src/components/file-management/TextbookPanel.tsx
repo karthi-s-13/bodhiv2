@@ -14,7 +14,8 @@ import {
   ChevronRight,
   ChevronDown,
   Bell,
-  Download
+  Download,
+  Menu
 } from 'lucide-react';
 import { TextbookDetail } from './TextbookDetail';
 import type { PDFDocument, PDFDocumentSummary } from '../../types';
@@ -57,6 +58,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
   const [selectedChapter, setSelectedChapter] = useState<any>(undefined);
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
   const [tocSearchTerm, setTocSearchTerm] = useState<string>('');
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState<boolean>(false);
 
   const tabLabels: Record<string, string> = {
     curriculum: 'Curriculum Map',
@@ -64,6 +66,15 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
     text: 'Text Reader',
     search: 'Semantic Search',
     presentations: 'Saved PPTs'
+  };
+
+  // AI-generated outlines often already bake numbering into chapter/topic names
+  // (e.g. "Chapter 2: Machine Learning", "2.1 Concept and Principles"). Strip any
+  // such existing prefix so our own computed numbering never doubles up with it.
+  const stripChapterPrefix = (name: string) => name.replace(/^chapter\s*\d+\s*[:.\-–]?\s*/i, '').trim();
+  const stripNumberPrefix = (name: string) => {
+    const m = name.match(/^\d+(?:\.\d+)*\s+(.*)$/);
+    return m ? m[1] : name;
   };
 
   // Toggle chapter accordion
@@ -81,9 +92,9 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
       if (viewerDoc.textbook_data && viewerDoc.textbook_data.items && viewerDoc.textbook_data.items.length > 0) {
         const firstChap = viewerDoc.textbook_data.items[0];
         if (firstChap.children && firstChap.children.length > 0) {
-          setSelectedTopicName(firstChap.children[0].name);
+          setSelectedTopicName(stripNumberPrefix(firstChap.children[0].name));
           setSelectedTopicNumber('1.1');
-          setSelectedChapterLabel(`Chapter 1: ${firstChap.name}`);
+          setSelectedChapterLabel(`Chapter 1: ${stripChapterPrefix(firstChap.name)}`);
           setSelectedChapter(firstChap);
           setExpandedChapters({ [firstChap.id]: true });
         }
@@ -266,7 +277,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
     if (cleanSub.includes('tamil')) return '#FEF3C7';
     if (cleanSub.includes('social')) return '#FFEDD5';
     if (cleanSub.includes('hindi')) return '#DCFCE7';
-    return 'rgba(79, 70, 229, 0.08)';
+    return 'rgba(198, 138, 61, 0.08)';
   };
 
   const getSubjectTextColor = (subj?: string) => {
@@ -388,7 +399,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
 
             {/* Total Textbooks */}
             <div className="library-stats-card">
-              <div className="library-stats-icon" style={{ background: 'rgba(79, 70, 229, 0.1)', color: 'var(--color-primary)' }}>
+              <div className="library-stats-icon" style={{ background: 'rgba(198, 138, 61, 0.1)', color: 'var(--color-primary)' }}>
                 <BookOpen size={24} />
               </div>
               <div className="stats-card-details">
@@ -534,13 +545,23 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                     >
                       View Curriculum Map
                     </button>
-                    <button 
-                      onClick={() => handleViewCurriculum(doc)}
-                      className="btn-arrow-action"
-                      title="Explore details"
-                    >
-                      <ArrowRight size={16} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={() => handleViewCurriculum(doc)}
+                        className="btn-arrow-action"
+                        title="Explore details"
+                      >
+                        <ArrowRight size={16} />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onDeleteDoc(doc.id); }}
+                        className="btn-arrow-action"
+                        style={{ borderColor: 'rgba(239,68,68,0.2)', color: '#EF4444' }}
+                        title="Delete textbook"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -647,6 +668,13 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
           <div className="detail-breadcrumb-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
             <div className="breadcrumb-trail" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <button 
+                  className="mobile-hamburger" 
+                  onClick={() => setHistoryDrawerOpen(true)}
+                  style={{ marginRight: '8px', color: 'var(--text-primary)', display: window.innerWidth <= 1024 ? 'flex' : 'none' }}
+                >
+                  <Menu size={18} />
+                </button>
                 <span className="breadcrumb-link" onClick={() => setMode('library')} style={{ cursor: 'pointer' }}>My Textbooks</span>
                 {viewerDoc && (
                   <>
@@ -666,11 +694,11 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '16px' }}>
-              <button className="class-pill-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600 }}>
+              <button className="class-pill-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600 }}>
                 <span>Class 8 - A</span>
                 <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
               </button>
-              <div className="notif-bell-btn" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', background: 'white', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
+              <div className="notif-bell-btn" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', background: 'var(--bg-card)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
                 <Bell size={18} style={{ color: 'var(--text-secondary)' }} />
                 <span className="notif-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: 'var(--color-danger)', color: 'white', fontSize: '0.6rem', fontWeight: 800, padding: '2px 6px', borderRadius: '10px' }}>3</span>
               </div>
@@ -684,7 +712,12 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
           <div className="history-layout" style={{ flexGrow: 1, minHeight: 0 }}>
             {/* Left column: Table of Contents Accordion Pane */}
             {viewerDoc && (
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }} className="history-sidebar glass-panel animate-fade-in">
+              <>
+                <div 
+                  className={`sidebar-backdrop ${historyDrawerOpen ? 'visible' : ''}`}
+                  onClick={() => setHistoryDrawerOpen(false)}
+                />
+                <div className={`history-sidebar glass-panel animate-fade-in ${historyDrawerOpen ? 'drawer-open' : ''}`} style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, padding: '20px' }}>
                 {/* Mini Book Card */}
                 <div style={{
                   display: 'flex',
@@ -692,7 +725,8 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                   gap: '12px',
                   paddingBottom: '16px',
                   borderBottom: '1px solid var(--border-glass)',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  flexShrink: 0
                 }}>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                     <div style={{ width: '52px', height: '70px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
@@ -714,7 +748,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                     onClick={() => setMode('library')}
                     style={{
                       width: '100%',
-                      background: 'white',
+                      background: 'var(--bg-card)',
                       border: '1px solid var(--border-glass)',
                       borderRadius: 'var(--radius-sm)',
                       padding: '7px 8px',
@@ -729,7 +763,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                 </div>
 
                 {/* Table of Contents Header */}
-                <div style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: '16px', flexShrink: 0 }}>
                   <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>Table of Contents</h3>
                   
                   {/* Search box */}
@@ -783,7 +817,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                         >
                           <span className="chapter-header-stack">
                             <span className="chapter-header-label">Chapter {chapterNumber}</span>
-                            <span className="chapter-header-title">{chapter.name}</span>
+                            <span className="chapter-header-title">{stripChapterPrefix(chapter.name)}</span>
                           </span>
                           <ChevronRight
                             size={14}
@@ -796,20 +830,22 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                         </div>
 
                         {isExpanded && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', marginTop: '4px', borderLeft: '2px solid rgba(79, 70, 229, 0.15)', marginLeft: '12px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', marginTop: '4px', borderLeft: '2px solid rgba(198, 138, 61, 0.15)', marginLeft: '12px' }}>
                             {filteredChildren.map((topic: any) => {
-                              const isSelected = selectedTopicName === topic.name;
+                              const displayTopicName = stripNumberPrefix(topic.name);
+                              const isSelected = selectedTopicName === displayTopicName;
                               const topicIndexInChapter = (chapter.children || []).findIndex((t: any) => t.id === topic.id) + 1;
                               const topicNumber = `${chapterNumber}.${topicIndexInChapter}`;
                               return (
                                 <div
                                   key={topic.id}
                                   onClick={() => {
-                                    setSelectedTopicName(topic.name);
+                                    setSelectedTopicName(displayTopicName);
                                     setSelectedTopicNumber(topicNumber);
-                                    setSelectedChapterLabel(`Chapter ${chapterNumber}: ${chapter.name}`);
+                                    setSelectedChapterLabel(`Chapter ${chapterNumber}: ${stripChapterPrefix(chapter.name)}`);
                                     setSelectedChapter(chapter);
                                     setViewerTab('curriculum');
+                                    setHistoryDrawerOpen(false); // Close drawer on selection
                                   }}
                                   style={{
                                     display: 'flex',
@@ -819,7 +855,7 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                                     fontSize: '0.78rem',
                                     fontWeight: isSelected ? 700 : 500,
                                     color: isSelected ? 'var(--color-primary)' : 'var(--text-secondary)',
-                                    background: isSelected ? 'rgba(79, 70, 229, 0.06)' : 'transparent',
+                                    background: isSelected ? 'rgba(198, 138, 61, 0.06)' : 'transparent',
                                     borderRadius: 'var(--radius-sm)',
                                     cursor: 'pointer',
                                     transition: 'var(--transition-smooth)',
@@ -835,12 +871,12 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                                     height: '10px',
                                     borderRadius: '50%',
                                     background: isSelected ? 'var(--color-primary)' : 'white',
-                                    border: `2px solid ${isSelected ? 'var(--color-primary)' : 'rgba(79, 70, 229, 0.3)'}`,
+                                    border: `2px solid ${isSelected ? 'var(--color-primary)' : 'rgba(198, 138, 61, 0.3)'}`,
                                     zIndex: 2
                                   }} />
                                   <span className="topic-number-prefix" style={{ color: isSelected ? 'var(--color-primary)' : 'var(--text-muted)', fontWeight: 700 }}>{topicNumber}</span>
                                   <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {topic.name}
+                                    {displayTopicName}
                                   </span>
                                 </div>
                               );
@@ -868,13 +904,15 @@ export const TextbookPanel: React.FC<TextbookPanelProps> = ({
                     padding: '8px',
                     borderRadius: 'var(--radius-md)',
                     fontSize: '0.8rem',
-                    fontWeight: 700
+                    fontWeight: 700,
+                    flexShrink: 0
                   }}
                 >
                   <Download size={14} />
                   <span>Download Curriculum Map</span>
                 </button>
               </div>
+              </>
             )}
 
             {/* Right pane: Detailed explorer/viewer */}

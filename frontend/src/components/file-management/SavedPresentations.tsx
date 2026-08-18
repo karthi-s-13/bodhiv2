@@ -56,8 +56,8 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
         <div style={{ 
-          width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(79, 70, 229, 0.1)', 
-          color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' 
+          width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(198, 138, 61, 0.1)', 
+          color: '#C68A3D', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' 
         }}>
           <Presentation size={32} />
         </div>
@@ -72,14 +72,14 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
   return (
     <div style={{ padding: '24px' }}>
       <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <Presentation size={24} style={{ color: '#4F46E5' }} />
+        <Presentation size={24} style={{ color: '#C68A3D' }} />
         Saved Presentations
       </h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
         {presentations.map((pres) => (
           <div key={pres.id} style={{
-            background: 'white', borderRadius: '14px', border: '1px solid var(--border-glass)',
+            background: 'var(--bg-card)', borderRadius: '14px', border: '1px solid var(--border-glass)',
             boxShadow: 'var(--shadow-premium)', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px'
           }}>
             <div>
@@ -87,11 +87,11 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
                 {pres.title}
               </h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '4px' }}>
-                <BookOpen size={14} style={{ color: '#4F46E5' }} />
+                <BookOpen size={14} style={{ color: '#C68A3D' }} />
                 <span style={{ fontWeight: 600 }}>Topic:</span> {pres.topic_name || 'N/A'}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                <Layers size={14} style={{ color: '#7C3AED' }} />
+                <Layers size={14} style={{ color: '#E3B36B' }} />
                 <span style={{ fontWeight: 600 }}>Chapter:</span> {pres.chapter_name || 'N/A'}
               </div>
             </div>
@@ -105,7 +105,7 @@ export const SavedPresentations: React.FC<SavedPresentationsProps> = ({ docId, t
               <button 
                 onClick={() => setSelectedPresentation(pres)}
                 style={{
-                  flex: 1, padding: '10px', background: 'rgba(79, 70, 229, 0.1)', color: '#4F46E5',
+                  flex: 1, padding: '10px', background: 'rgba(198, 138, 61, 0.1)', color: '#C68A3D',
                   border: 'none', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                 }}

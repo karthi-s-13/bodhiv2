@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell, ChevronDown, Menu } from 'lucide-react';
 import { Sidebar } from './file-management/Sidebar';
 import { DashboardHome } from './file-management/DashboardHome';
 import { TextbookPanel } from './file-management/TextbookPanel';
@@ -13,6 +13,7 @@ export const Dashboard: React.FC = () => {
   const [selectedClass, setSelectedClass] = useState<string>('Class 8 - A');
   const [showClassDropdown, setShowClassDropdown] = useState<boolean>(false);
   const [showAskBodhiChat, setShowAskBodhiChat] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   
   // Ask Bodhi Chatbot States
   const [chatQuery, setChatQuery] = useState<string>('');
@@ -195,6 +196,34 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-layout animate-fade-in">
+      {/* Mobile Header (only visible on small screens via CSS) */}
+      <header className="mobile-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            className="mobile-hamburger"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu size={24} />
+          </button>
+          <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'white' }}>Bodhi AI</span>
+        </div>
+        <div style={{ position: 'relative' }}>
+          <Bell size={20} color="white" />
+          <span style={{
+            position: 'absolute', top: '-4px', right: '-4px',
+            background: 'var(--color-danger)', color: 'white',
+            fontSize: '0.6rem', fontWeight: 'bold', width: '14px', height: '14px',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>3</span>
+        </div>
+      </header>
+
+      {/* Sidebar Backdrop */}
+      <div 
+        className={`sidebar-backdrop ${mobileMenuOpen ? 'visible' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
       {/* Sidebar Navigation */}
       <Sidebar 
         activeSidebarTab={activeSidebarTab}
@@ -207,6 +236,8 @@ export const Dashboard: React.FC = () => {
         setShowAskBodhiChat={setShowAskBodhiChat}
         userName={user?.full_name}
         onLogout={logout}
+        mobileOpen={mobileMenuOpen}
+        setMobileOpen={setMobileMenuOpen}
       />
 
       {/* Hidden file input for quick action uploads */}
@@ -331,7 +362,7 @@ export const Dashboard: React.FC = () => {
                           padding: '10px 16px',
                           cursor: 'pointer',
                           fontSize: '0.9rem',
-                          background: selectedClass === c ? 'rgba(79, 70, 229, 0.05)' : 'none',
+                          background: selectedClass === c ? 'rgba(198, 138, 61, 0.05)' : 'none',
                           color: 'var(--text-primary)'
                         }}
                         className="class-dropdown-item"

@@ -150,7 +150,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', zIndex: 2000 }} />
-      <div style={{
+      <div className="modal-container" style={{
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
         width: '780px', maxWidth: '95vw', maxHeight: '90vh',
         background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)',
@@ -158,7 +158,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
         zIndex: 2001, display: 'flex', flexDirection: 'column', overflow: 'hidden'
       }}>
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+        <div style={{ background: 'linear-gradient(135deg,#C68A3D,#E3B36B)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.15)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ClipboardList size={22} color="white" />
@@ -174,9 +174,9 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
         </div>
 
         {/* Body */}
-        <div style={{ flexGrow: 1, overflowY: 'auto', padding: '24px' }}>
+        <div className="modal-content-scrollable" style={{ flexGrow: 1, overflowY: 'auto', padding: '24px' }}>
           {/* Topic Banner */}
-          <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.06),rgba(124,58,237,0.06))', border: '1px solid rgba(79,70,229,0.15)', borderRadius: 'var(--radius-md)', padding: '14px 18px', marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+          <div style={{ background: 'linear-gradient(135deg,rgba(198,138,61,0.06),rgba(227,179,107,0.06))', border: '1px solid rgba(198,138,61,0.15)', borderRadius: 'var(--radius-md)', padding: '14px 18px', marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
             <BookOpen size={18} style={{ color: 'var(--color-primary)', marginTop: '2px', flexShrink: 0 }} />
             <div style={{ flexGrow: 1 }}>
               <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{chapterName}</div>
@@ -184,7 +184,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
               {subtopics.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {subtopics.slice(0, 6).map((s, i) => (
-                    <span key={i} style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.15)', color: 'var(--color-primary)', fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px', borderRadius: '12px' }}>{s}</span>
+                    <span key={i} style={{ background: 'rgba(198,138,61,0.08)', border: '1px solid rgba(198,138,61,0.15)', color: 'var(--color-primary)', fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px', borderRadius: '12px' }}>{s}</span>
                   ))}
                   {subtopics.length > 6 && <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '3px 0' }}>+{subtopics.length - 6} more</span>}
                 </div>
@@ -209,7 +209,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                 {[3, 5, 10, 15, 20].map(n => (
-                  <button key={n} onClick={() => setNumQuestions(n)} style={{ padding: '8px 20px', borderRadius: 'var(--radius-md)', border: numQuestions === n ? '2px solid var(--color-primary)' : '1px solid var(--border-glass)', background: numQuestions === n ? 'rgba(79,70,229,0.1)' : 'var(--bg-card)', color: numQuestions === n ? 'var(--color-primary)' : 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.15s' }}>
+                  <button key={n} onClick={() => setNumQuestions(n)} style={{ padding: '8px 20px', borderRadius: 'var(--radius-md)', border: numQuestions === n ? '2px solid var(--color-primary)' : '1px solid var(--border-glass)', background: numQuestions === n ? 'rgba(198,138,61,0.1)' : 'var(--bg-card)', color: numQuestions === n ? 'var(--color-primary)' : 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.15s' }}>
                     {n}
                   </button>
                 ))}
@@ -234,7 +234,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
           {/* Loading */}
           {loading && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 24px', gap: '16px' }}>
-              <div style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg,rgba(79,70,229,0.1),rgba(124,58,237,0.1))', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg,rgba(198,138,61,0.1),rgba(227,179,107,0.1))', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Loader2 size={32} style={{ color: 'var(--color-primary)', animation: 'spin 1s linear infinite' }} />
               </div>
               <div style={{ textAlign: 'center' }}>
@@ -276,7 +276,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
                     return (
                       <div key={idx} style={{ background: 'var(--bg-panel)', border: '1px solid var(--color-primary)', borderRadius: 'var(--radius-md)', padding: '20px' }}>
                         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', alignItems: 'center' }}>
-                          <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
+                          <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#C68A3D,#E3B36B)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
                           <h4 style={{ margin: 0, fontSize: '1rem' }}>Edit Question</h4>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -334,7 +334,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
                   return (
                     <div key={idx} style={{ background: 'var(--bg-panel)', border: `1px solid ${revealed && selected ? (isCorrect ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)') : 'var(--border-glass)'}`, borderRadius: 'var(--radius-md)', padding: '20px', transition: 'border-color 0.2s' }}>
                       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
+                        <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg,#C68A3D,#E3B36B)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
                         <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.5, flexGrow: 1 }}>{q.question}</p>
                         <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                           <button onClick={() => { setEditingIndex(idx); setEditForm(q); }} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }} title="Edit Question">
@@ -354,11 +354,11 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
                           if (revealed) {
                             if (isCorrectOpt) { bg = 'rgba(16,185,129,0.1)'; border = 'rgba(16,185,129,0.4)'; color = '#065F46'; }
                             else if (isSelected) { bg = 'rgba(239,68,68,0.08)'; border = 'rgba(239,68,68,0.3)'; color = '#991B1B'; }
-                          } else if (isSelected) { bg = 'rgba(79,70,229,0.08)'; border = 'var(--color-primary)'; color = 'var(--color-primary)'; }
+                          } else if (isSelected) { bg = 'rgba(198,138,61,0.08)'; border = 'var(--color-primary)'; color = 'var(--color-primary)'; }
                           return (
                             <button key={oIdx} onClick={() => selectOption(idx, letter)} disabled={revealed}
                               style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: bg, border: `1.5px solid ${border}`, borderRadius: 'var(--radius-sm)', cursor: revealed ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.15s', color, fontWeight: isSelected || (revealed && isCorrectOpt) ? 700 : 500, fontSize: '0.87rem' }}>
-                              <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: revealed && isCorrectOpt ? '#10B981' : (revealed && isSelected ? '#EF4444' : 'rgba(79,70,229,0.1)'), color: (revealed && (isCorrectOpt || isSelected)) ? 'white' : 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 900, flexShrink: 0 }}>{letter}</span>
+                              <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: revealed && isCorrectOpt ? '#10B981' : (revealed && isSelected ? '#EF4444' : 'rgba(198,138,61,0.1)'), color: (revealed && (isCorrectOpt || isSelected)) ? 'white' : 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 900, flexShrink: 0 }}>{letter}</span>
                               {opt}
                               {revealed && isCorrectOpt && <CheckCircle2 size={16} style={{ marginLeft: 'auto', color: '#10B981' }} />}
                             </button>
@@ -376,7 +376,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
                               <ChevronUp size={14} /> Hide Answer
                             </button>
                             {q.explanation && (
-                              <div style={{ background: 'rgba(79,70,229,0.05)', border: '1px solid rgba(79,70,229,0.12)', borderRadius: 'var(--radius-sm)', padding: '10px 14px', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                              <div style={{ background: 'rgba(198,138,61,0.05)', border: '1px solid rgba(198,138,61,0.12)', borderRadius: 'var(--radius-sm)', padding: '10px 14px', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                                 <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>✓ Answer: {q.answer} &nbsp;|&nbsp;</span>
                                 {q.explanation}
                               </div>
@@ -390,7 +390,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
-                <button onClick={handleAddQuestion} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'rgba(79,70,229,0.08)', border: '1px dashed var(--color-primary)', borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={handleAddQuestion} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'rgba(198,138,61,0.08)', border: '1px dashed var(--color-primary)', borderRadius: 'var(--radius-md)', color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer' }}>
                   <Plus size={18} /> Add New Question
                 </button>
               </div>
@@ -424,7 +424,7 @@ export const MCQAssessmentModal: React.FC<MCQAssessmentModalProps> = ({
               </button>
             )}
             {!result && (
-              <button onClick={handleGenerate} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 22px', background: loading ? 'var(--text-muted)' : 'linear-gradient(135deg,#4F46E5,#7C3AED)', border: 'none', borderRadius: 'var(--radius-md)', color: 'white', fontSize: '0.9rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 4px 14px rgba(79,70,229,0.35)' }}>
+              <button onClick={handleGenerate} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 22px', background: loading ? 'var(--text-muted)' : 'linear-gradient(135deg,#C68A3D,#E3B36B)', border: 'none', borderRadius: 'var(--radius-md)', color: 'white', fontSize: '0.9rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 4px 14px rgba(198,138,61,0.35)' }}>
                 {loading ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Generating...</> : <><Sparkles size={16} /> Generate {numQuestions} MCQs</>}
               </button>
             )}

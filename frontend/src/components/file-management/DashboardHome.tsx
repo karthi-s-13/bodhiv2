@@ -29,6 +29,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
 }) => {
   const { token } = useAuth();
   const [assessments, setAssessments] = useState<any[]>([]);
+  const [presentations, setPresentations] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchAssessments = async () => {
@@ -45,7 +46,24 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
         console.error("Failed to fetch assessments", err);
       }
     };
+    
+    const fetchPresentations = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch('/api/presentations', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPresentations(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch presentations", err);
+      }
+    };
+
     fetchAssessments();
+    fetchPresentations();
   }, [token]);
   
   // Format bytes
@@ -79,7 +97,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
     if (colorClass === 'purple') { bgIcon = 'rgba(142, 68, 173, 0.1)'; textIconColor = 'var(--color-primary)'; }
     else if (colorClass === 'green') { bgIcon = 'rgba(16, 185, 129, 0.1)'; textIconColor = 'var(--color-success)'; }
     else if (colorClass === 'orange') { bgIcon = 'rgba(249, 115, 22, 0.1)'; textIconColor = '#F97316'; }
-    else if (colorClass === 'blue') { bgIcon = 'rgba(6, 182, 212, 0.1)'; textIconColor = 'var(--color-secondary)'; }
+    else if (colorClass === 'blue') { bgIcon = 'rgba(94, 124, 158, 0.1)'; textIconColor = 'var(--color-secondary)'; }
     else { bgIcon = 'rgba(236, 72, 153, 0.1)'; textIconColor = '#EC4899'; }
 
     return (
@@ -261,7 +279,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
                 width: '40px',
                 height: '40px',
                 borderRadius: '8px',
-                background: 'white',
+                background: 'var(--bg-card)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -348,8 +366,8 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
               width: '52px',
               height: '52px',
               borderRadius: '10px',
-              background: 'rgba(79, 70, 229, 0.05)',
-              border: '1px solid rgba(79, 70, 229, 0.15)',
+              background: 'rgba(198, 138, 61, 0.05)',
+              border: '1px solid rgba(198, 138, 61, 0.15)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -383,7 +401,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px', justifyContent: 'center' }}>
         <div className="donut-chart-wrapper">
           <svg width="100" height="100" viewBox="0 0 42 42" className="donut-chart">
-            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#E2E8F0" strokeWidth="4.2"></circle>
+            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#E7CFA0" strokeWidth="4.2"></circle>
             
             {/* Needs Support: 23% (Red) */}
             <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#EF4444" strokeWidth="4.2" 
@@ -394,7 +412,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
                     strokeDasharray="37 63" strokeDashoffset="77" className="donut-segment"></circle>
             
             {/* Strong: 40% (Indigo) */}
-            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#4F46E5" strokeWidth="4.2" 
+            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#C68A3D" strokeWidth="4.2" 
                     strokeDasharray="40 60" strokeDashoffset="40" className="donut-segment"></circle>
           </svg>
           <div className="donut-center-text">
@@ -406,7 +424,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
         <div className="legend-list" style={{ flexGrow: 1 }}>
           <div className="legend-item">
             <div className="legend-label-group">
-              <span className="legend-dot" style={{ background: '#4F46E5' }} />
+              <span className="legend-dot" style={{ background: '#C68A3D' }} />
               <span>Strong</span>
             </div>
             <span style={{ fontWeight: 600 }}>40% (13)</span>
@@ -488,8 +506,8 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
     });
   }
 
-  // Initially, PPTs and Assessments start at 0 until created by the teacher
-  const pptsCount = 0;
+  // Use real-time data for counts
+  const pptsCount = presentations.length;
   const assessmentsCount = assessments.length;
 
   return (
