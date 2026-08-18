@@ -12,6 +12,7 @@ import {
   LogOut,
   BarChart2
 } from 'lucide-react';
+import bodhiLogo from '../../assets/image.png';
 
 interface SidebarProps {
   activeSidebarTab: string;
@@ -40,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="logo-container">
-        <BookOpen className="logo-icon" style={{ color: '#E3B36B' }} />
+        <img src={bodhiLogo} alt="Bodhi Logo" className="logo-icon" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
         <span className="logo-text">BODHI AI Co-Teacher</span>
       </div>
 
@@ -59,20 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <BookOpen className="nav-item-icon" />
           <span>My Textbooks</span>
         </div>
-        <div 
-          className={`nav-item ${activeSidebarTab === 'curriculum' ? 'active' : ''}`}
-          onClick={() => handleNavClick('curriculum')}
-        >
-          <Map className="nav-item-icon" />
-          <span>Curriculum Map</span>
-        </div>
-        <div 
-          className={`nav-item ${activeSidebarTab === 'lessons' ? 'active' : ''}`}
-          onClick={() => handleNavClick('lessons')}
-        >
-          <Calendar className="nav-item-icon" />
-          <span>Lesson Planner</span>
-        </div>
+
         <div 
           className={`nav-item ${activeSidebarTab === 'materials' ? 'active' : ''}`}
           onClick={() => handleNavClick('materials')}

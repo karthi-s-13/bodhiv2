@@ -6,6 +6,7 @@ import { DashboardHome } from './file-management/DashboardHome';
 import { TextbookPanel } from './file-management/TextbookPanel';
 import { ComingSoon } from './file-management/ComingSoon';
 import type { PDFDocumentSummary, PDFDocument } from '../types';
+import bodhiLogo from '../assets/image.png';
 
 export const Dashboard: React.FC = () => {
   const { token, logout, user } = useAuth();
@@ -205,6 +206,7 @@ export const Dashboard: React.FC = () => {
           >
             <Menu size={24} />
           </button>
+          <img src={bodhiLogo} alt="Bodhi Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
           <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'white' }}>Bodhi AI</span>
         </div>
         <div style={{ position: 'relative' }}>

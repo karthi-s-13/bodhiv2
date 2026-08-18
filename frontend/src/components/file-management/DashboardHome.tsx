@@ -9,7 +9,9 @@ import {
   Calendar, 
   Clock, 
   UploadCloud, 
-  Brain
+  Brain,
+  Dna,
+  Microscope
 } from 'lucide-react';
 import type { PDFDocumentSummary } from '../../types';
 import { DEMO_TEXTBOOKS } from '../../data/demoTextbooks';
@@ -130,7 +132,15 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
     );
   };
 
-  const renderBookCover = () => (
+  const formatCoverTitle = (filename: string) => {
+    let title = filename.replace(/\.[^/.]+$/, "").replace(/[-_]/g, ' ');
+    return title.toUpperCase();
+  };
+
+  const renderBookCover = (filename: string) => {
+    const title = formatCoverTitle(filename);
+    
+    return (
     <div style={{
       width: '120px',
       height: '160px',
@@ -146,11 +156,14 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
       overflow: 'hidden'
     }}>
       <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
-      <div style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '10px', width: 'fit-content' }}>SCIENCE</div>
-      <div style={{ fontWeight: 800, fontSize: '0.9rem', lineHeight: '1.2' }}>BIOLOGY<br/>CLASS 8</div>
-      <div style={{ fontSize: '0.6rem', opacity: 0.8 }}>BODHI Co-Teacher</div>
+      <div style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '10px', width: 'fit-content', position: 'relative', zIndex: 1 }}>TEXTBOOK</div>
+      <div style={{ fontWeight: 800, fontSize: '0.8rem', lineHeight: '1.2', position: 'relative', zIndex: 1, wordBreak: 'break-word', marginTop: 'auto', marginBottom: '8px' }}>{title}</div>
+      <div style={{ fontSize: '0.6rem', opacity: 0.8, position: 'relative', zIndex: 1 }}>BODHI Co-Teacher</div>
+      
+      <Microscope size={64} style={{ position: 'absolute', bottom: '-15px', right: '-15px', opacity: 0.15, transform: 'rotate(-15deg)' }} />
+      <Dna size={40} style={{ position: 'absolute', top: '15px', right: '5px', opacity: 0.2, transform: 'rotate(30deg)' }} />
     </div>
-  );
+  )};
 
   const renderTodayPlanCard = () => {
     // Fall back to first demo textbook if no database textbooks are uploaded
@@ -174,7 +187,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
         </div>
 
         <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-          {renderBookCover()}
+          {renderBookCover(docWithOutline?.filename || 'Biology Class 8.pdf')}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexGrow: 1 }}>
             <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: 600 }}>{chapterName}</span>
             <h4 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>{topicName}</h4>
@@ -400,7 +413,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Class Overview</h3>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px', justifyContent: 'center' }}>
         <div className="donut-chart-wrapper">
-          <svg width="100" height="100" viewBox="0 0 42 42" className="donut-chart">
+          <svg width="100%" height="100%" viewBox="0 0 42 42" className="donut-chart">
             <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#E7CFA0" strokeWidth="4.2"></circle>
             
             {/* Needs Support: 23% (Red) */}
@@ -493,15 +506,12 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
     </div>
   );
 
-  // Count chapters/topics for stats (ONLY from user-uploaded database documents)
-  let dbLessons = 0;
+  // Count chapters for stats (ONLY from user-uploaded database documents)
+  let dbChapters = 0;
   if (documents && documents.length > 0) {
     documents.forEach(d => {
       if (d.textbook_data && d.textbook_data.items) {
-        d.textbook_data.items.forEach((chap: any) => {
-          dbLessons += 1;
-          if (chap.children) dbLessons += chap.children.length;
-        });
+        dbChapters += d.textbook_data.items.length;
       }
     });
   }
@@ -514,7 +524,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }} className="animate-fade-in">
       <div className="stats-grid">
         {renderStatCard(<BookOpen size={22} />, "Textbooks Created", documents.length, "purple")}
-        {renderStatCard(<FileText size={22} />, "Lessons Created", dbLessons, "green")}
+        {renderStatCard(<FileText size={22} />, "Total Chapters", dbChapters, "green")}
         {renderStatCard(<Presentation size={22} />, "PPTs Generated", pptsCount, "orange")}
         {renderStatCard(<FileSpreadsheet size={22} />, "Assessments", assessmentsCount, "blue")}
       </div>
