@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Bell, ChevronDown, Menu } from 'lucide-react';
+import { Bell, ChevronDown, Menu, MessageSquare } from 'lucide-react';
 import { Sidebar } from './file-management/Sidebar';
 import { DashboardHome } from './file-management/DashboardHome';
 import { TextbookPanel } from './file-management/TextbookPanel';
@@ -237,7 +237,6 @@ export const Dashboard: React.FC = () => {
             setViewerDoc(null);
           }
         }}
-        setShowAskBodhiChat={setShowAskBodhiChat}
         userName={user?.full_name}
         onLogout={logout}
         mobileOpen={mobileMenuOpen}
@@ -498,6 +497,37 @@ export const Dashboard: React.FC = () => {
           />
         )}
       </main>
+
+      {/* Floating Action Button */}
+      {!showAskBodhiChat && (
+        <button
+          onClick={() => setShowAskBodhiChat(true)}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #C68A3D, #E3B36B)',
+            color: 'white',
+            border: 'none',
+            boxShadow: '0 8px 24px rgba(198, 138, 61, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 999,
+            transition: 'transform 0.2s',
+          }}
+          className="ask-bodhi-fab"
+          title="Ask Bodhi"
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <MessageSquare size={28} />
+        </button>
+      )}
 
       {/* Floating Ask Bodhi chat overlay drawer */}
       {showAskBodhiChat && (

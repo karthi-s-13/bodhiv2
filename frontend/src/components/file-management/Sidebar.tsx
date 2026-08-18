@@ -17,7 +17,6 @@ import bodhiLogo from '../../assets/image.png';
 interface SidebarProps {
   activeSidebarTab: string;
   setActiveSidebarTab: (tab: string) => void;
-  setShowAskBodhiChat: (show: boolean) => void;
   userName?: string;
   onLogout: () => void;
   mobileOpen: boolean;
@@ -27,7 +26,6 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   activeSidebarTab,
   setActiveSidebarTab,
-  setShowAskBodhiChat,
   userName,
   onLogout,
   mobileOpen,
@@ -96,16 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Users className="nav-item-icon" />
           <span>Students</span>
         </div>
-        <div 
-          className={`nav-item ${activeSidebarTab === 'ask' ? 'active' : ''}`}
-          onClick={() => {
-            handleNavClick('dashboard');
-            setShowAskBodhiChat(true);
-          }}
-        >
-          <MessageSquare className="nav-item-icon" />
-          <span>Ask Bodhi</span>
-        </div>
+
         <div 
           className={`nav-item ${activeSidebarTab === 'settings' ? 'active' : ''}`}
           onClick={() => handleNavClick('settings')}

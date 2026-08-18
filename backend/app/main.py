@@ -201,7 +201,7 @@ async def generate_textbook_structure(
     if not api_key:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="OpenRouter API Key is not configured. Please add OPENROUTER_API_KEY to your backend/.env file."
+            detail="OpenRouter API Key is not configured. Please add OpenRouter_API_KEY to your backend/.env file."
         )
 
     # Truncate text content if extremely large to avoid timeout
@@ -326,7 +326,7 @@ async def embed_text_chunks(texts: list[str]) -> list[list[float]]:
     """
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
-        raise ValueError("OPENROUTER_API_KEY is not configured. Please add it to your backend/.env file.")
+        raise ValueError("OpenRouter_API_KEY is not configured. Please add it to your backend/.env file.")
     
     batch_size = 16
     embeddings = []
@@ -1033,7 +1033,7 @@ async def generate_ppt_presentation(
     if not api_key:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="OpenRouter API Key is not configured. Please add OPENROUTER_API_KEY to your backend/.env file.",
+            detail="OpenRouter API Key is not configured. Please add OpenRouter_API_KEY to your backend/.env file.",
         )
 
     # --- Retrieve textbook evidence ---
